@@ -104,13 +104,34 @@
     };
 
     const terrainVariations = {
-      'Gebirge': ['Schroffes Gebirge', 'Vulkanisches Gebirge', 'Karges Gebirge', 'Zerklüftetes Gebirge', 'Schneebedecktes Gebirge'],
-      'Wald': ['Laubmischwald', 'Bergwald', 'Lichter Wald', 'Feuchtwald', 'Steinwald'],
-      'Wüste': ['Salzwüste', 'Felswüste', 'Kieselwüste', 'Tafelwüste', 'Sandmeer'],
+      'Meer': ['Stürmisches Meer', 'Felsenmeer', 'Weites Ozeanbecken', 'Trübes Küstenwasser', 'Tiefseeabschnitt'],
+      'See': ['Hochlandsee', 'Schilfsee', 'Kratersee', 'Dunkelwassersee', 'Sumpfsee'],
       'Fluss': ['Breiter Fluss', 'Reißender Fluss', 'Verzweigter Fluss', 'Tiefer Fluss', 'Schneller Strom'],
-      'Sumpf': ['Tiefer Sumpf', 'Schilfsumpf', 'Modriger Sumpf', 'Verlandeter Sumpf', 'Wassergras-Sumpf']
-      // weitere bei Bedarf
+      'Gebirge': ['Schroffes Gebirge', 'Vulkanisches Gebirge', 'Karges Gebirge', 'Zerklüftetes Gebirge', 'Schneebedecktes Gebirge'],
+      'Savanne': ['Trockensavanne', 'Grasreiche Savanne', 'Buschsavanne', 'Felsige Savanne', 'Hochlandsavanne'],
+      'Dschungel': ['Nebeldschungel', 'Bergdschungel', 'Tiefer Dschungel', 'Lichtdurchfluteter Dschungel', 'Schattenwald'],
+      'Wüste': ['Salzwüste', 'Felswüste', 'Kieselwüste', 'Tafelwüste', 'Sandmeer'],
+      'Wald': ['Laubmischwald', 'Bergwald', 'Lichter Wald', 'Feuchtwald', 'Steinwald'],
+      'Mangrovenwald': ['Flutwald', 'Schlickwald', 'Küstendickicht', 'Wurzelwald', 'Brackwald'],
+      'Küste': ['Sandküste', 'Steilküste', 'Lagunenrand', 'Felsküste', 'Brandungsküste'],
+      'Hochebene': ['Steppenhochland', 'Vulkanisches Plateau', 'Grünplateau', 'Felsplateau', 'Waldhochland'],
+      'Steppe': ['Grassteppe', 'Felssteppe', 'Buschsteppe', 'Hügellandsteppe', 'Halbwüstensteppe'],
+      'Tundra': ['Frosttundra', 'Flechtendtundra', 'Feuchttundra', 'Kieseltundra', 'Hügeltundra'],
+      'Taiga': ['Lichttaiga', 'Nadelwaldtaiga', 'Moorige Taiga', 'Steintaiga', 'Schneegrenze-Taiga'],
+      'Sumpf': ['Tiefer Sumpf', 'Schilfsumpf', 'Modriger Sumpf', 'Verlandeter Sumpf', 'Wassergras-Sumpf'],
+      'Moorland': ['Hochmoor', 'Niedermoor', 'Torfland', 'Heidemoor', 'Bruchmoor'],
+      'Prärie': ['Blumenprärie', 'Hügelprärie', 'Grasprärie', 'Trockenprärie', 'Wellenprärie'],
+      'Insel': ['Felseninsel', 'Sandinsel', 'Vulkaninsel', 'Koralleninsel', 'Flussinsel'],
+      'Halbinsel': ['Dünenhalbinsel', 'Felshalbinsel', 'Waldhalbinsel', 'Steppenhalbinsel', 'Buchtenhalbinsel'],
+      'Grasland': ['Hohes Grasland', 'Feuchtes Grasland', 'Karggrasland', 'Windgrasland', 'Blütenfeld'],
+      'Heide': ['Trockenheide', 'Grasheide', 'Felsenheide', 'Blumenheide', 'Nebelheide'],
+      'Felsküste': ['Basaltküste', 'Klippenküste', 'Geröllküste', 'Schieferküste', 'Abbruchküste'],
+      'Savannengrasland': ['Grüne Savanne', 'Dornengrasland', 'Lichtgrasland', 'Savannensteppe', 'Steppengras'],
+      'Bambuswald': ['Bergbambuswald', 'Feuchtbambuswald', 'Lichtbambuswald', 'Dichter Bambushain', 'Wildbambuswald'],
+      'Hochmoor': ['Windhochmoor', 'Wasserhochmoor', 'Steinhochmoor', 'Krüppelholzmoor', 'Grashochmoor'],
+      'Archipel': ['Korallenarchipel', 'Vulkanarchipel', 'Küstenarchipel', 'Felsenarchipel', 'Lagunenarchipel']
     };
+
 
     function getRandomTerrain(neighborTerrains) {
       const climateCounts = {};
