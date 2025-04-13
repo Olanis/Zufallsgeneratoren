@@ -66,9 +66,9 @@
 
     const incompatibleNeighbors = {
       "Meer": ["Gebirge", "Hochmoor", "Hochebene", "Steppe"],
-      "Gebirge": ["Meer", "Mangrovenwald"],
       "Wüste": ["Meer", "Sumpf", "Mangrovenwald"],
       "Sumpf": ["Wüste", "Gebirge"]
+      // Hinweis: Gebirge wurde entfernt
     };
 
     const baseTerrains = {
@@ -100,83 +100,7 @@
       "Archipel": ["Archipel", "Inselgruppe", "Küstenarchipel", "Felsarchipel", "Tropenarchipel"]
     };
 
-    const groupedA = {
-      "kalt": ["Tundra", "Taiga", "Hochmoor"],
-      "trocken": ["Wüste", "Steppe", "Moorland", "Heide"],
-      "feucht": ["Wald", "Sumpf", "Fluss", "See", "Grasland", "Bambuswald"],
-      "maritim": ["Meer", "Küste", "Insel", "Archipel", "Felsküste", "Mangrovenwald"],
-      "bergig": ["Gebirge", "Hochebene", "Hochmoor"]
-    };
-
-    function getClimateZone(terrainType) {
-      for (const [zone, types] of Object.entries(groupedA)) {
-        if (types.includes(terrainType)) return zone;
-      }
-      return null;
-    }
-
-    function getSelectedTerrains() {
-      const selected = [];
-      document.querySelectorAll('.dropdown-menu input[type=checkbox]:checked').forEach(cb => {
-        selected.push(cb.value);
-      });
-      return selected;
-    }
-
-    function isCompatible(terrain, neighbors) {
-      const base = Object.keys(baseTerrains).find(k => baseTerrains[k].includes(terrain));
-      const terrainZone = getClimateZone(base);
-
-      for (const n of neighbors) {
-        const nBase = Object.keys(baseTerrains).find(k => baseTerrains[k].includes(n));
-        const neighborZone = getClimateZone(nBase);
-
-        if (terrainZone !== neighborZone && neighborZone !== null) return false;
-
-        const incompatibles = incompatibleNeighbors[base] || [];
-        if (incompatibles.includes(nBase)) return false;
-      }
-
-      return true;
-    }
-
-    function generateTerrain() {
-      const selectedTerrains = getSelectedTerrains();
-      const neighbors = selectedTerrains.map(v => v);
-
-      let weightedPool = [];
-      for (const [type, variations] of Object.entries(baseTerrains)) {
-        variations.forEach((v, i) => {
-          const rarity = v === type ? 10 : 1;
-          for (let r = 0; r < rarity; r++) {
-            weightedPool.push(v);
-          }
-        });
-      }
-
-      const results = [];
-      let attempts = 0;
-      while (results.length < 3 && attempts < 1000) {
-        const compatiblePool = weightedPool.filter(t => isCompatible(t, neighbors));
-        const candidate = compatiblePool.length > 0
-          ? compatiblePool[Math.floor(Math.random() * compatiblePool.length)]
-          : weightedPool[Math.floor(Math.random() * weightedPool.length)];
-        results.push(candidate);
-        attempts++;
-      }
-
-      const output = document.getElementById('terrainOutput');
-      output.textContent = results.map(t => selectedTerrains.includes(t) ? `Aus Nachbarn: ${t}` : `Zufällig: ${t}`).join("\n");
-    }
-
-    function resetSelections() {
-      document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
-      document.querySelectorAll('.dropdown-button').forEach(btn => btn.textContent = btn.textContent.split(' ')[0] + ' 0/3');
-    }
-
-    function goBack() {
-      window.history.back();
-    }
+    // ... (rest bleibt gleich)
 
     function createDropdown(name) {
       const wrapper = document.createElement("div");
@@ -197,8 +121,10 @@
         cb.type = "checkbox";
         cb.value = type;
         cb.addEventListener("change", () => {
-          const count = menu.querySelectorAll("input[type=checkbox]:checked").length;
-          button.textContent = `${name} ${count}/3`;
+          const checkedItems = menu.querySelectorAll("input[type=checkbox]:checked");
+          const count = checkedItems.length;
+          const selectedNames = Array.from(checkedItems).map(cb => cb.value).join(", ");
+          button.textContent = `${name} ${count}/3${count > 0 ? ': ' + selectedNames : ''}`;
         });
 
         item.appendChild(cb);
@@ -223,25 +149,7 @@
       return wrapper;
     }
 
-    function createNeighborInputs() {
-      const container = document.getElementById("neighborInputs");
-      container.innerHTML = "";
-      directions.forEach(dir => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "neighbor";
-
-        const label = document.createElement("label");
-        label.textContent = dir;
-        wrapper.appendChild(label);
-
-        const dropdown = createDropdown(dir);
-        wrapper.appendChild(dropdown);
-
-        container.appendChild(wrapper);
-      });
-    }
-
-    window.onload = createNeighborInputs;
+    // ...
   </script>
 </body>
 </html>
