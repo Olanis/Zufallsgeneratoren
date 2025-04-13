@@ -2,59 +2,52 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Terrain-Generator (Checkbox-Dropdowns)</title>
+  <title>Terrain-Generator</title>
   <style>
     body { font-family: sans-serif; padding: 2em; max-width: 900px; margin: auto; }
     button { font-size: 1em; padding: 0.5em; margin: 1em 0.5em 0 0; }
     .output { margin-top: 1em; font-weight: bold; white-space: pre-line; }
-    .neighbor-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1em; }
-    .dropdown-wrapper { position: relative; margin-bottom: 1em; }
+    .neighbor-map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5em; text-align: center; margin-bottom: 1em; }
+    .neighbor-dropdowns { display: flex; flex-wrap: wrap; gap: 1em; margin-bottom: 1em; }
+    .dropdown { position: relative; }
     .dropdown-button {
-      width: 100%;
-      text-align: left;
       padding: 0.5em;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background: white;
+      font-size: 0.9em;
       cursor: pointer;
+      min-width: 160px;
     }
     .dropdown-content {
-      display: none;
       position: absolute;
-      top: 100%;
-      left: 0;
-      z-index: 100;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 0.5em;
+      display: none;
+      z-index: 1000;
       max-height: 200px;
       overflow-y: auto;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      width: 100%;
-      padding: 0.5em;
     }
-    .dropdown-wrapper.open .dropdown-content {
+    .dropdown.open .dropdown-content {
       display: block;
     }
-    .dropdown-content label {
-      display: block;
-      margin: 0.2em 0;
-    }
-    .dropdown-status {
-      font-size: 0.9em;
-      color: #666;
-      float: right;
-    }
+    label { font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <h2>⛰️ Terrain-Generator (Checkbox-Dropdowns)</h2>
+  <h2>⛰️ Terrain-Generator</h2>
 
-  <div class="neighbor-group" id="neighborInputs">
-    <!-- Dynamisch gefüllt -->
+  <!-- Mini-Karte -->
+  <div class="neighbor-map">
+    <div>NW</div><div>N</div><div>NO</div>
+    <div>W</div><div><strong>🧭</strong></div><div>O</div>
+    <div>SW</div><div>S</div><div>SO</div>
   </div>
 
-  <button onclick="generateTerrain()">Terrain generieren</button>
+  <!-- Dropdowns für Nachbar-Terrains -->
+  <div class="neighbor-dropdowns" id="neighborInputs"></div>
+
+  <button onclick="generateTerrain()">🌍 Terrain generieren</button>
+  <button onclick="resetSelections()">🔄 Auswahl zurücksetzen</button>
   <button onclick="goBack()">🔙 Zurück</button>
 
   <div class="output" id="terrainOutput"></div>
@@ -78,71 +71,75 @@
       "bergig": ['Gebirge', 'Hochebene', 'Hügel']
     };
 
-    function setupInputs() {
-      const container = document.getElementById('neighborInputs');
-      container.innerHTML = '';
+    function createDropdown(dir) {
+      const wrap = document.createElement('div');
+      wrap.id = `wrap_${dir}`;
+      wrap.className = 'dropdown';
 
-      directions.forEach(dir => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'dropdown-wrapper';
-        wrapper.id = `wrap_${dir}`;
+      const button = document.createElement('button');
+      button.className = 'dropdown-button';
+      button.innerHTML = `${dir}: keine (0/3)`;
+      wrap.appendChild(button);
 
-        const button = document.createElement('div');
-        button.className = 'dropdown-button';
-        button.innerHTML = `${dir} <span class="dropdown-status" id="status_${dir}">0/3</span>`;
-        button.onclick = () => {
-          wrapper.classList.toggle('open');
-        };
+      const dropdown = document.createElement('div');
+      dropdown.className = 'dropdown-content';
+      dropdown.id = `dropdown_${dir}`;
 
-        const dropdown = document.createElement('div');
-        dropdown.className = 'dropdown-content';
-        dropdown.id = `dropdown_${dir}`;
+      allTerrains.forEach(terrain => {
+        const label = document.createElement('label');
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = terrain;
 
-        allTerrains.forEach(terrain => {
-          const id = `${dir}_${terrain.replace(/\s/g, '_')}`;
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.value = terrain;
-          checkbox.name = dir;
-          checkbox.id = id;
+        checkbox.addEventListener('change', () => {
+          const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+          const checked = Array.from(checkboxes).filter(cb => cb.checked);
+          const selectedNames = checked.map(cb => cb.value).join(', ');
+          button.innerHTML = `${dir}: ${selectedNames || 'keine'} (${checked.length}/3)`;
 
-          checkbox.addEventListener('change', () => {
-            const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
-            const checked = Array.from(checkboxes).filter(cb => cb.checked);
-            const status = document.getElementById(`status_${dir}`);
-            status.textContent = `${checked.length}/3`;
-
-            if (checked.length > 3) {
-              checkbox.checked = false;
-              alert('Maximal 3 Terrains pro Richtung erlaubt!');
-              status.textContent = `3/3`;
-            }
-          });
-
-          const label = document.createElement('label');
-          label.setAttribute('for', id);
-          label.appendChild(checkbox);
-          label.appendChild(document.createTextNode(' ' + terrain));
-
-          dropdown.appendChild(label);
+          if (checked.length > 3) {
+            checkbox.checked = false;
+            alert('Maximal 3 Terrains pro Richtung erlaubt!');
+          }
         });
 
-        wrapper.appendChild(button);
-        wrapper.appendChild(dropdown);
-        container.appendChild(wrapper);
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode(terrain));
+        dropdown.appendChild(label);
+        dropdown.appendChild(document.createElement('br'));
       });
 
-      document.addEventListener('click', function (e) {
-        if (!e.target.closest('.dropdown-wrapper')) {
-          document.querySelectorAll('.dropdown-wrapper').forEach(w => w.classList.remove('open'));
-        }
+      button.addEventListener('click', () => {
+        wrap.classList.toggle('open');
+      });
+
+      wrap.appendChild(dropdown);
+      return wrap;
+    }
+
+    function setupInputs() {
+      const container = document.getElementById('neighborInputs');
+      directions.forEach(dir => {
+        const dropdown = createDropdown(dir);
+        container.appendChild(dropdown);
       });
     }
 
     function getSelectedTerrains() {
       return directions.map(dir => {
-        const boxes = document.querySelectorAll(`input[name="${dir}"]:checked`);
-        return Array.from(boxes).map(cb => cb.value);
+        const dropdown = document.getElementById(`dropdown_${dir}`);
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+        return Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+      });
+    }
+
+    function resetSelections() {
+      directions.forEach(dir => {
+        const dropdown = document.getElementById(`dropdown_${dir}`);
+        const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+        const button = document.querySelector(`#wrap_${dir} .dropdown-button`);
+        button.innerHTML = `${dir}: keine (0/3)`;
       });
     }
 
@@ -209,7 +206,8 @@
       window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
     }
 
-    window.onload = setupInputs;
+    setupInputs();
   </script>
+
 </body>
 </html>
