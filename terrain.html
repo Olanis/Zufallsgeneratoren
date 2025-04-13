@@ -62,206 +62,167 @@
 
     const baseTerrains = {
       "Meer": [
-        "Meer (mit lilablauen Riffzungen und silberglänzendem Algenband)",
-        "Meer (dunkelgrün, mit knorrigen Kelpinseln)",
-        "Meer (mit schimmernden Zackenfelsen unter der Wasseroberfläche)",
-        "Meer (tiefviolett, mit spiralförmigen Strömungsinseln)",
-        "Meer (smaragdgrün, durchzogen von kantigen Steinfeldern)"
-      ],
-      "See": [
-        "See (umgeben von lilafarbenen Farnhügeln)",
-        "See (mit glasblauem Wasser und flachen Schlickinseln)",
-        "See (dicht bewachsen mit blauschwarzen Wasserlinsen)",
-        "See (klein, aber tief, mit Felsnadeln am Rand)",
-        "See (mit dunkelroten Schwimmblattinseln)"
-      ],
-      "Fluss": [
-        "Fluss (windet sich durch silbernes Geröll)",
-        "Fluss (schmal, aber schnell, mit türkis schimmerndem Gestein)",
-        "Fluss (mit violettgrünem Uferrand und Sickerquellen)",
-        "Fluss (steil eingeschnitten in schwarzen Basalt)",
-        "Fluss (breit und trächtig, mit schwimmenden Pilzfloßen)"
-      ],
-      "Gebirge": [
-        "Gebirge (aus scharfen Zackenfelsplatten)",
-        "Gebirge (mit rosafarbenem Staubgestein bedeckt)",
-        "Gebirge (durchzogen von türkisfarbenem Kristalladern)",
-        "Gebirge (steile, dunkle Klippen mit moosigem Rücken)",
-        "Gebirge (mit flachen Plateaus voller eisenrotem Gras)"
-      ],
-      "Savanne": [
-        "Savanne (trocken, mit leuchtend blauer Grasart *Shilma*)",
-        "Savanne (gelblich mit bizarren Knochenbäumen)",
-        "Savanne (von violettem Staub überzogen)",
-        "Savanne (offen, mit Schattenpilz-Ebenen)",
-        "Savanne (flach, mit silberwehendem Gras)"
-      ],
-      "Dschungel": [
-        "Dschungel (mit dreifarbigen Blättern des *Ortho-Baums*)",
-        "Dschungel (dicht, mit spiralförmiger Rankung)",
-        "Dschungel (grünviolett, mit schimmerndem Bodenwuchs)",
-        "Dschungel (unregelmäßig, mit säulenartigen Gewächsen)",
-        "Dschungel (dunkel, mit fluoreszierenden Blattdächern)"
-      ],
-      "Wüste": [
-        "Wüste (sandfarben mit violetten Steilrinnen)",
-        "Wüste (aus kantigem Glasstaub)",
-        "Wüste (mit ockerfarbenen Windzungen)",
-        "Wüste (mit azurblauen Dünenfeldern)",
-        "Wüste (steinern, durchzogen von tiefen Schächten)"
+        "Tiefenmeer (dunkel und bodenlos, kaum Leben)",
+        "Sturmsee (tobende Wellen und ewiger Nebel)",
+        "Kristallsee (glasklar mit phosphoreszierenden Algen)",
+        "Frostküste (vereiste Wellen mit schneebedeckten Felsen)",
+        "Blutsee (rötliches Wasser mit unbekannter Ursache)"
       ],
       "Wald": [
-        "Wald (mit *Ynrak*-Bäumen – schwarzviolette Stämme mit dicken Kronen)",
-        "Wald (grünblau, voller dünner *Kelun*-Stäucher)",
-        "Wald (schimmernd, mit kupferfarbenem Blattwerk)",
-        "Wald (dicht, mit spiraligen Rankenbäumen)",
-        "Wald (hohe, schlanke *Maru*-Bäume mit glänzender Rinde)"
+        "Dunkelwald (hohe Bäume mit schwärzlicher Rinde)",
+        "Leuchtwald (Bäume mit biolumineszenten Blättern)",
+        "Windwald (ständig rauschende Kronen)",
+        "Schattenhain (extrem dichter Unterwuchs)",
+        "Dornenwald (mit meterlangen Stacheln an den Ästen)"
       ],
-      "Mangrovenwald": [
-        "Mangrovenwald (mit schwefelgrünen Wurzeltellern)",
-        "Mangrovenwald (blassviolett, mit gläsernen Wasseradern)",
-        "Mangrovenwald (überwachsen mit *Flam*-Moos)",
-        "Mangrovenwald (flach, mit leuchtenden Algenkränzen)",
-        "Mangrovenwald (verflochten mit moosigen Steinkreuzen)"
+      "Wüste": [
+        "Glaswüste (boden aus spiegelndem Quarzsand)",
+        "Sengöde (trocken, flimmernd, ohne jede Vegetation)",
+        "Flammensand (roter, glühender Boden)",
+        "Knochendünen (weißlicher Sand mit Fossilien)",
+        "Schleierwüste (permanenter Staub in der Luft)"
       ],
-      "Küste": [
-        "Küste (steinig mit moosbewachsenen Bänken)",
-        "Küste (mit rötlichem Sand und Kristallstegen)",
-        "Küste (grünlich, mit Sinterkämmen und Dampfquellen)",
-        "Küste (voller knorriger Felsgebilde)",
-        "Küste (mit glitschigen Algenfeldern)"
-      ],
-      "Hochebene": [
-        "Hochebene (trocken, mit kupferner Steppenvegetation)",
-        "Hochebene (steinübersät mit windgepeitschten Grasinseln)",
-        "Hochebene (mit violettem Windgras)",
-        "Hochebene (flach, von dunklen Steintürmen durchzogen)",
-        "Hochebene (mit weißen Blütenpolstern)"
-      ],
-      "Steppe": [
-        "Steppe (mit rötlichem Dorngras)",
-        "Steppe (flach und trocken, mit Eisenbüschen)",
-        "Steppe (unterbrochen von schimmernden Staubflächen)",
-        "Steppe (gelblich, mit weiten, leeren Flächen)",
-        "Steppe (überzogen mit silbernen Kieseln)"
-      ],
-      "Tundra": [
-        "Tundra (mit kargem violettgrünem Moosteppich)",
-        "Tundra (gefroren, mit Splitterfelsen)",
-        "Tundra (von silbrigem Gras bewachsen)",
-        "Tundra (dunkelgrau, mit glatten Steinkissen)",
-        "Tundra (unterbrochen von flachen Eisbecken)"
-      ],
-      "Taiga": [
-        "Taiga (dicht mit *Borun*-Fichten bewachsen – nadelförmig, mit weicher Glutoptik)",
-        "Taiga (kalt und neblig, mit rötlich schimmernden Nadeln)",
-        "Taiga (graugrün, mit hängenden Eisblättern)",
-        "Taiga (überwuchert von kupferfarbenem Moos)",
-        "Taiga (dunkel, mit seltenem *Kriik*-Gesträuch)"
-      ],
-      "Sumpf": [
-        "Sumpf (mit grünlich leuchtendem Brackwasser)",
-        "Sumpf (übersät mit braunvioletten Moorsporen)",
-        "Sumpf (dicht bewachsen mit *Ul'thii*-Pflanzen – blattlos, aber breit)",
-        "Sumpf (weich, mit dampfenden Tümpeln)",
-        "Sumpf (klein, aber tief, mit dunklem Rankenwuchs)"
-      ],
-      "Moorland": [
-        "Moorland (feucht, mit hellblauem Sporenwuchs)",
-        "Moorland (dunkelviolett, mit zähem Boden)",
-        "Moorland (gesprenkelt mit *Nurn*-Farnen)",
-        "Moorland (kalt, mit knorrigem Grasgewirr)",
-        "Moorland (neblig, mit flachen Wasserlinsen)"
-      ],
-      "Prärie": [
-        "Prärie (offen, mit langen, silbrig-grauen Gräsern)",
-        "Prärie (lehmig, mit orangefarbenem Steppengras)",
-        "Prärie (bewachsen mit *Fhara*-Büschen – rund und fahlgrün)",
-        "Prärie (weich gewellt, mit rotviolettem Moos)",
-        "Prärie (durchzogen von windgeformten Sandfalten)"
-      ],
-      "Insel": [
-        "Insel (felsig, mit runden Schieferzungen)",
-        "Insel (von grünen Spiralbäumen bewachsen)",
-        "Insel (klein, mit orangefarbenem Boden und schwarzem Rankenwerk)",
-        "Insel (mit glasartigen Felskuppeln)",
-        "Insel (umsäumt von flachen Moossäumen)"
-      ],
-      "Halbinsel": [
-        "Halbinsel (langgezogen mit steinernen Dornrücken)",
-        "Halbinsel (düster bewachsen mit *Ikar*-Ranken)",
-        "Halbinsel (unterteilt durch schimmernde Quellläufe)",
-        "Halbinsel (teils versunken, mit mineralischem Schimmer)",
-        "Halbinsel (lehmig, mit glühenden Kieslinsen)"
-      ],
-      "Grasland": [
-        "Grasland (grünlich, mit fächerförmigem Gras)",
-        "Grasland (hell, von knirschendem Trockengras bedeckt)",
-        "Grasland (violett durchzogen von *Jhara*-Stängeln)",
-        "Grasland (mit kiesigem Untergrund)",
-        "Grasland (mit leuchtendgelbem Hüftgras)"
-      ],
-      "Heide": [
-        "Heide (violettblühend, mit weißem Steinwuchs)",
-        "Heide (trocken, mit dornigem Zwergstrauch)",
-        "Heide (überzogen von roten Farnrosetten)",
-        "Heide (graublau, mit kleinen Bodenranken)",
-        "Heide (mit rostfarbener Kuppe)"
-      ],
-      "Felsküste": [
-        "Felsküste (steil, mit glatten Granitzungen)",
-        "Felsküste (wild, mit schäumenden Becken und spitzen Nadeln)",
-        "Felsküste (grünlich, mit eisenhaltigen Rillen)",
-        "Felsküste (verwittert, mit flacher Klippenkante)",
-        "Felsküste (bruchstückhaft, mit ausgehöhlten Taschen)"
-      ],
-      "Savannengrasland": [
-        "Savannengrasland (mit leuchtendem Feuerschilf)",
-        "Savannengrasland (weißlich, mit glitzernden Steinrosen)",
-        "Savannengrasland (dürr, mit flächigem Dornkraut)",
-        "Savannengrasland (bedeckt mit *Aruun*-Halmen)",
-        "Savannengrasland (voller violetter Staubkissen)"
-      ],
-      "Bambuswald": [
-        "Bambuswald (bläulich, mit sechseckigen Halmen)",
-        "Bambuswald (grün, mit stark verfilztem Unterwuchs)",
-        "Bambuswald (hochwüchsig, mit dunklen Blattkronen)",
-        "Bambuswald (gesäumt von kreisrunden Lichtungen)",
-        "Bambuswald (mit hohlen, klangvollen Stämmen)"
-      ],
-      "Hochmoor": [
-        "Hochmoor (windgepeitscht, mit weißen Graswellen)",
-        "Hochmoor (violettgrau, mit durchweichtem Kern)",
-        "Hochmoor (dunkel, von *Tarun*-Moosen bedeckt)",
-        "Hochmoor (nass, mit schwarzem Wasserfilm)",
-        "Hochmoor (lichtarm, von Grabenrissen durchzogen)"
-      ],
-      "Archipel": [
-        "Archipel (viele kleine Schieferinseln mit grünem Bewuchs)",
-        "Archipel (umgeben von leuchtendem Flachwasser)",
-        "Archipel (aus spitzen Felsnadeln geformt)",
-        "Archipel (gruppiert um eine schwarze Zentralinsel)",
-        "Archipel (mit korallenfarbenem Boden)"
-      ],
-      "Hügel": [
-        "Hügel (weich gewellt, mit Moosbedeckung)",
-        "Hügel (steinübersät, mit hellen Kuppen)",
-        "Hügel (trocken, mit borstigem Gras)",
-        "Hügel (mit kleinen Felsenringen und violettem Boden)",
-        "Hügel (mit glatten Pfadadern und grüner Haut)"
+      "Gebirge": [
+        "Splittergrat (extrem spitze und zerklüftete Gipfel)",
+        "Donnerklippen (ständig von Gewittern umgeben)",
+        "Nebelzacken (in dichte Nebel gehüllt)",
+        "Felsenzorn (massive Steilwände und Abgründe)",
+        "Stufenberge (plateauförmig, mit terrassierten Hängen)"
       ]
     };
 
-    const allTerrains = Object.values(baseTerrains).flat();
-
     const groupedA = {
-      "tropisch": ['Dschungel', 'Mangrovenwald', 'Savanne', 'Savannengrasland', 'Bambuswald'],
-      "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
-      "trocken": ['Wüste', 'Steppe', 'Moorland', 'Heide'],
-      "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
-      "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
-      "bergig": ['Gebirge', 'Hochebene', 'Hügel']
+      "kalt": ["Tundra", "Taiga", "Hochmoor"],
+      "trocken": ["Wüste", "Steppe", "Moorland", "Heide"],
+      "feucht": ["Wald", "Sumpf", "Fluss", "See", "Grasland"],
+      "maritim": ["Meer", "Küste", "Insel", "Archipel", "Felsküste"],
+      "bergig": ["Gebirge", "Hochebene", "Hügel"]
     };
+
+    const allTerrains = Object.entries(baseTerrains).flatMap(([type, variations]) =>
+      variations.map(v => ({ type, variation: v }))
+    );
+
+    function getClimateZone(terrainType) {
+      for (const [zone, types] of Object.entries(groupedA)) {
+        if (types.includes(terrainType)) return zone;
+      }
+      return null;
+    }
+
+    function getSelectedTerrains() {
+      const selected = [];
+      document.querySelectorAll('.dropdown-menu input[type=checkbox]:checked').forEach(cb => {
+        selected.push(cb.value);
+      });
+      return selected;
+    }
+
+    function isCompatible(terrain, neighbors) {
+      const terrainZone = getClimateZone(terrain.type);
+      return neighbors.every(n => {
+        const neighborZone = getClimateZone(n);
+        return terrainZone === neighborZone || !neighborZone;
+      });
+    }
+
+    function generateTerrain() {
+      const selectedTerrains = getSelectedTerrains();
+      const neighbors = selectedTerrains.map(v => baseTerrains[v]?.[0]?.split(" (")[0] || v);
+
+      let weightedPool = [];
+      for (const [type, variations] of Object.entries(baseTerrains)) {
+        const rarity = 6 - Math.min(5, variations.length); // Häufigkeit invers zur Anzahl
+        variations.forEach(v => weightedPool.push(...Array(rarity).fill({ type, variation: v })));
+      }
+
+      let attempts = 0;
+      let chosen;
+      while (attempts++ < 100) {
+        const rand = Math.floor(Math.random() * weightedPool.length);
+        const candidate = weightedPool[rand];
+        if (isCompatible(candidate, neighbors)) {
+          chosen = candidate;
+          break;
+        }
+      }
+
+      const output = document.getElementById('terrainOutput');
+      output.textContent = chosen
+        ? `Ausgewähltes Terrain:\n${chosen.variation}`
+        : '⚠️ Kein passendes Terrain gefunden (klimatische Inkompatibilität?)';
+    }
+
+    function resetSelections() {
+      document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+
+    function createDropdown(name) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "dropdown";
+
+      const button = document.createElement("div");
+      button.className = "dropdown-button";
+      button.textContent = name + " 0/3";
+
+      const menu = document.createElement("div");
+      menu.className = "dropdown-menu";
+
+      baseTerrains[name]?.forEach((label, i) => {
+        const item = document.createElement("label");
+        item.className = "terrain-item";
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.value = name;
+        cb.addEventListener("change", () => {
+          const count = menu.querySelectorAll("input[type=checkbox]:checked").length;
+          button.textContent = `${name} ${count}/3`;
+        });
+
+        item.appendChild(cb);
+        item.appendChild(document.createTextNode(label));
+        menu.appendChild(item);
+      });
+
+      wrapper.appendChild(button);
+      wrapper.appendChild(menu);
+
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        wrapper.classList.toggle("open");
+      });
+
+      document.addEventListener("click", () => {
+        wrapper.classList.remove("open");
+      });
+
+      return wrapper;
+    }
+
+    function createNeighborInputs() {
+      const container = document.getElementById("neighborInputs");
+      container.innerHTML = "";
+      directions.forEach(dir => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "neighbor";
+
+        const label = document.createElement("label");
+        label.textContent = dir;
+        wrapper.appendChild(label);
+
+        const dropdown = createDropdown(dir);
+        wrapper.appendChild(dropdown);
+
+        container.appendChild(wrapper);
+      });
+    }
+
+    window.onload = createNeighborInputs;
   </script>
 </body>
 </html>
