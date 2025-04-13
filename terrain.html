@@ -4,14 +4,51 @@
   <meta charset="UTF-8">
   <title>Terrain-Generator</title>
   <style>
-    body { font-family: sans-serif; padding: 2em; max-width: 700px; margin: auto; }
+    body { font-family: sans-serif; padding: 2em; max-width: 800px; margin: auto; }
     button { font-size: 1em; padding: 0.5em; margin: 1em 0.5em 0 0; }
     .output { margin-top: 1em; font-weight: bold; white-space: pre-line; }
+    .neighbor-group { display: flex; flex-wrap: wrap; gap: 1em; }
+    .neighbor { display: flex; flex-direction: column; }
   </style>
 </head>
 <body>
 
   <h2>⛰️ Terrain-Generator</h2>
+
+  <div class="neighbor-group">
+    <div class="neighbor">
+      <label for="n">N</label>
+      <input id="n" placeholder="z.B. Wald,Hügel,Fluss">
+    </div>
+    <div class="neighbor">
+      <label for="no">NO</label>
+      <input id="no" placeholder="optional">
+    </div>
+    <div class="neighbor">
+      <label for="o">O</label>
+      <input id="o" placeholder="z.B. Gebirge,Hügel,Wald">
+    </div>
+    <div class="neighbor">
+      <label for="so">SO</label>
+      <input id="so" placeholder="optional">
+    </div>
+    <div class="neighbor">
+      <label for="s">S</label>
+      <input id="s" placeholder="z.B. Wald,Wald,Hügel">
+    </div>
+    <div class="neighbor">
+      <label for="sw">SW</label>
+      <input id="sw" placeholder="optional">
+    </div>
+    <div class="neighbor">
+      <label for="w">W</label>
+      <input id="w" placeholder="optional">
+    </div>
+    <div class="neighbor">
+      <label for="nw">NW</label>
+      <input id="nw" placeholder="z.B. Wald,Hügel,Hügel">
+    </div>
+  </div>
 
   <button onclick="generateTerrain()">Terrain generieren</button>
   <button onclick="goBack()">🔙 Zurück</button>
@@ -28,17 +65,7 @@
     "bergig": ['Gebirge', 'Hochebene', 'Hügel']
   };
 
-  // Beispielhafte angrenzende Tiles (kannst du anpassen)
-  const neighbors = [
-    ['Wald', 'Hügel', 'Fluss'],    // N
-    null,                          // NO
-    ['Gebirge', 'Hügel', 'Wald'], // O
-    null,                          // SO
-    ['Wald', 'Wald', 'Hügel'],    // S
-    ['Fluss', 'Sumpf', 'Wald'],   // SW
-    null,                          // W
-    ['Wald', 'Hügel', 'Hügel']    // NW
-  ];
+  const directions = ['n', 'no', 'o', 'so', 's', 'sw', 'w', 'nw'];
 
   function getRandomElements(arr, count) {
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
@@ -52,19 +79,24 @@
     return shuffled.slice(0, 2);
   }
 
+  function readNeighborsFromInputs() {
+    return directions.map(dir => {
+      const val = document.getElementById(dir).value.trim();
+      return val ? val.split(',').map(t => t.trim()) : null;
+    });
+  }
+
   function generateContextAwareTerrain(neighbors) {
     const allNeighborTerrains = neighbors
       .filter(n => n)
       .flat();
 
     if (allNeighborTerrains.length === 0) {
-      // fallback: zufällige zwei Gruppen aus groupedA
       const [group1, group2] = getTwoDistinctKeys(groupedA);
       const combined = [...groupedA[group1], ...groupedA[group2]];
       return getRandomElements(combined, 3);
     }
 
-    // Gewichtetes Terrain basierend auf Häufigkeit
     const weightedPool = [];
     for (let terrain of allNeighborTerrains) {
       const weight = allNeighborTerrains.filter(t => t === terrain).length;
@@ -79,6 +111,7 @@
   }
 
   function generateTerrain() {
+    const neighbors = readNeighborsFromInputs();
     const aItems = generateContextAwareTerrain(neighbors);
     const output = `🌍 Allgemein (kontextsensitiv): ${aItems.join(', ')}`;
     document.getElementById('terrainOutput').textContent = output;
