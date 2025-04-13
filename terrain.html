@@ -19,38 +19,74 @@
   <div class="output" id="terrainOutput"></div>
 
   <script>
-    const groupedA = {
-      "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
-      "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
-      "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
-      "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
-      "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
-      "bergig": ['Gebirge', 'Hochebene', 'Hügel']
-    };
+  const groupedA = {
+    "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
+    "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
+    "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
+    "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
+    "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
+    "bergig": ['Gebirge', 'Hochebene', 'Hügel']
+  };
 
-    function getRandomElements(arr, count) {
-      const shuffled = [...arr].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, count);
-    }
+  // Beispielhafte angrenzende Tiles (kannst du anpassen)
+  const neighbors = [
+    ['Wald', 'Hügel', 'Fluss'],    // N
+    null,                          // NO
+    ['Gebirge', 'Hügel', 'Wald'], // O
+    null,                          // SO
+    ['Wald', 'Wald', 'Hügel'],    // S
+    ['Fluss', 'Sumpf', 'Wald'],   // SW
+    null,                          // W
+    ['Wald', 'Hügel', 'Hügel']    // NW
+  ];
 
-    function getTwoDistinctKeys(obj) {
-      const keys = Object.keys(obj);
-      const shuffled = keys.sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, 2);
-    }
+  function getRandomElements(arr, count) {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    const unique = [...new Set(shuffled)];
+    return unique.slice(0, count);
+  }
 
-    function generateTerrain() {
+  function getTwoDistinctKeys(obj) {
+    const keys = Object.keys(obj);
+    const shuffled = keys.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 2);
+  }
+
+  function generateContextAwareTerrain(neighbors) {
+    const allNeighborTerrains = neighbors
+      .filter(n => n)
+      .flat();
+
+    if (allNeighborTerrains.length === 0) {
+      // fallback: zufällige zwei Gruppen aus groupedA
       const [group1, group2] = getTwoDistinctKeys(groupedA);
       const combined = [...groupedA[group1], ...groupedA[group2]];
-      const aItems = getRandomElements(combined, Math.min(3, combined.length));
-
-      const output = `🌍 Oberwelt: ${aItems.join(', ')}`;
-      document.getElementById('terrainOutput').textContent = output;
+      return getRandomElements(combined, 3);
     }
 
-    function goBack() {
-      window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
+    // Gewichtetes Terrain basierend auf Häufigkeit
+    const weightedPool = [];
+    for (let terrain of allNeighborTerrains) {
+      const weight = allNeighborTerrains.filter(t => t === terrain).length;
+      for (let i = 0; i < weight; i++) {
+        weightedPool.push(terrain);
+      }
     }
+
+    const shuffled = [...weightedPool].sort(() => 0.5 - Math.random());
+    const unique = [...new Set(shuffled)];
+    return unique.slice(0, 3);
+  }
+
+  function generateTerrain() {
+    const aItems = generateContextAwareTerrain(neighbors);
+    const output = `🌍 Allgemein (kontextsensitiv): ${aItems.join(', ')}`;
+    document.getElementById('terrainOutput').textContent = output;
+  }
+
+  function goBack() {
+    window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
+  }
   </script>
 
 </body>
