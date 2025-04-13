@@ -105,7 +105,7 @@
         checkbox.type = 'checkbox';
         checkbox.value = terrain;
 
-        checkbox.addEventListener('change', () => {
+        checkbox.addEventListener('change', (e) => {
           const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
           const checked = Array.from(checkboxes).filter(cb => cb.checked);
           const selectedNames = checked.map(cb => cb.value).join(', ');
@@ -125,17 +125,24 @@
 
       button.addEventListener('click', (e) => {
         e.stopPropagation();
-        document.querySelectorAll('.dropdown').forEach(el => el.classList.remove('open'));
+        document.querySelectorAll('.dropdown').forEach(el => {
+          if (el !== wrap) el.classList.remove('open');
+        });
         wrap.classList.toggle('open');
-      });
-
-      document.addEventListener('click', () => {
-        wrap.classList.remove('open');
       });
 
       wrap.appendChild(dropdown);
       return wrap;
     }
+
+    document.addEventListener('click', (e) => {
+      const dropdowns = document.querySelectorAll('.dropdown');
+      dropdowns.forEach(drop => {
+        if (!drop.contains(e.target)) {
+          drop.classList.remove('open');
+        }
+      });
+    });
 
     function setupInputs() {
       const container = document.getElementById('neighborInputs');
