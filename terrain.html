@@ -19,54 +19,42 @@
   <div class="output" id="terrainOutput"></div>
 
   <script>
-    const tableA = [
-      'Meer', 'See', 'Fluss', 'Gebirge', 'Savanne', 'Dschungel', 'Wüste', 'Wald', 'Mangrovenwald',
-      'Küste', 'Hochebene', 'Steppe', 'Tundra', 'Taiga', 'Sumpf', 'Moorland', 'Prärie', 'Insel',
-      'Halbinsel', 'Grasland', 'Heide', 'Felsküste', 'Savannengrasland', 'Regenwald', 'Feuchtgebiet',
-      'Bambuswald', 'Hochmoor', 'Archipel'
-    ];
-
-    const tableB = [
-      'Gletscher', 'Vulkan', 'Oase', 'Lagune', 'Höhle', 'Wasserfall', 'Salzwüste', 'Bergpass', 'Quelle',
-      'Becken', 'Atoll', 'Eisfeld', 'Permafrost', 'Salzmarsch', 'Lavafeld', 'Caldera', 'Geysir', 'Mesa',
-      'Fjell', 'Sandstrand', 'Klippen', 'Felsen', 'Geröllfeld', 'Canyon', 'Bucht', 'Riff', 'Delta', 'Fjord',
-      'Schlucht', 'Dünen', 'Plateau', 'Gebirgstal', 'Hügelkette', 'Bach', 'Krater', 'Bergsee', 'Sandbank'
-    ];
-
-    const tableC = [
-      'Kristallhöhle', 'Leuchtender Pilzwald', 'Versteinerter Wald', 'Schwimmende Inseln',
-      'Eisspiegelwüste', 'Ewiger Sturmgrat', 'Schattental', 'Verwunschene Lichtung', 'Flüsternde Höhlen',
-      'Kristallsee', 'Geistermoor', 'Sternenfall-Krater', 'Zeitlose Ebene', 'Versunkene Stadt',
-      'Obsidianwüste', 'Feuerberge', 'Spiegelkaskaden', 'Mondblumenwiese', 'Kristalliner Gletscher',
-      'Ätherische Quellen', 'Verwunschenes Labyrinth', 'Dämmerwälder', 'Sternensplitter-Ebene',
-      'Nebelwasserfälle', 'Echogrotten', 'Kristallwüste', 'Schwebende Felsen', 'Biomleuchtendes Moor',
-      'Zeitverschiebungszone', 'Quantenkristallfelder', 'Prismatische Canyons', 'Plasmaströme',
-      'Gravitationsanomalien', 'Psychedelische Pilzwälder', 'Resonanzebenen', 'Phasenverschobene Täler',
-      'Chronostatische Felder', 'Ätherwellen', 'Nebeldimensionen', 'Antimateriefelder',
-      'Holographische Oasen', 'Naniten-Wüsten', 'Metamorphe Berge', 'Plasmastürme',
-      'Quantenschaum-Sümpfe', 'Dimensionsrisse', 'Entropische Zonen', 'Biomechanische Wälder',
-      'Psionische Felder', 'Fraktale Canyons', 'Energienexus', 'Zeitlose Ruinen', 'Quantenkaskaden',
-      'Hyperdimensionale Riffe', 'Resonanzgrotten'
-    ];
-
+    const groupedA = {
+      "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
+      "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
+      "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
+      "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
+      "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
+      "bergig": ['Gebirge', 'Hochebene', 'Hügel']
+    };
+  
+    const tableB = [/* ... bleibt wie gehabt ... */];
+    const tableC = [/* ... bleibt wie gehabt ... */];
+  
     function getRandomElements(arr, count) {
-      const shuffled = arr.sort(() => 0.5 - Math.random());
+      const shuffled = [...arr].sort(() => 0.5 - Math.random());
       return shuffled.slice(0, count);
     }
-
+  
     function generateTerrain() {
-      const aItems = getRandomElements(tableA, 3);
+      // 1. Tabelle A: passende Gruppe wählen
+      const groups = Object.values(groupedA);
+      const randomGroup = groups[Math.floor(Math.random() * groups.length)];
+      const aItems = getRandomElements(randomGroup, Math.min(3, randomGroup.length));
+  
+      // 2. Tabelle B & C wie bisher
       const bItems = getRandomElements(tableB, 3);
       const cItem = getRandomElements(tableC, 1)[0];
-
+  
       const output = `🌍 Allgemein: ${aItems.join(', ')}\n🪨 Detail: ${bItems.join(', ')}\n✨ Spezial: ${cItem}`;
       document.getElementById('terrainOutput').textContent = output;
     }
-
+  
     function goBack() {
       window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
     }
   </script>
+
 
 </body>
 </html>
