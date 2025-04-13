@@ -5,17 +5,36 @@
   <title>Terrain-Generator</title>
   <style>
     body { font-family: sans-serif; padding: 2em; max-width: 900px; margin: auto; }
-    button { font-size: 1em; padding: 0.5em; margin: 1em 0.5em 0 0; }
+    button { font-size: 1em; padding: 0.5em; margin: 1em 0.5em 0 0; cursor: pointer; }
     .output { margin-top: 1em; font-weight: bold; white-space: pre-line; }
-    .neighbor-map { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5em; text-align: center; margin-bottom: 1em; }
     .neighbor-dropdowns { display: flex; flex-wrap: wrap; gap: 1em; margin-bottom: 1em; }
-    .dropdown { position: relative; }
-    .dropdown-button {
-      padding: 0.5em;
+
+    .dropdown {
+      position: relative;
+      width: 200px;
       font-size: 0.9em;
-      cursor: pointer;
-      min-width: 160px;
     }
+
+    .dropdown-button {
+      width: 100%;
+      padding: 0.5em 1.8em 0.5em 0.5em;
+      text-align: left;
+      position: relative;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      appearance: none;
+    }
+
+    .dropdown-button::after {
+      content: "▾";
+      position: absolute;
+      right: 0.6em;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+
     .dropdown-content {
       position: absolute;
       background: #fff;
@@ -25,10 +44,13 @@
       z-index: 1000;
       max-height: 200px;
       overflow-y: auto;
+      width: 100%;
     }
+
     .dropdown.open .dropdown-content {
       display: block;
     }
+
     label { font-weight: bold; }
   </style>
 </head>
@@ -36,14 +58,6 @@
 
   <h2>⛰️ Terrain-Generator</h2>
 
-  <!-- Mini-Karte -->
-  <div class="neighbor-map">
-    <div>NW</div><div>N</div><div>NO</div>
-    <div>W</div><div><strong>🧭</strong></div><div>O</div>
-    <div>SW</div><div>S</div><div>SO</div>
-  </div>
-
-  <!-- Dropdowns für Nachbar-Terrains -->
   <div class="neighbor-dropdowns" id="neighborInputs"></div>
 
   <button onclick="generateTerrain()">🌍 Terrain generieren</button>
@@ -109,8 +123,14 @@
         dropdown.appendChild(document.createElement('br'));
       });
 
-      button.addEventListener('click', () => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.dropdown').forEach(el => el.classList.remove('open'));
         wrap.classList.toggle('open');
+      });
+
+      document.addEventListener('click', () => {
+        wrap.classList.remove('open');
       });
 
       wrap.appendChild(dropdown);
