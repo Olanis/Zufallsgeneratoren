@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Terrain-Generator</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; max-width: 500px; margin: auto; }
+    button { font-size: 1em; padding: 0.5em; margin-top: 1em; }
+    .output { margin-top: 1em; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>⛰️ Terrain-Generator</h2>
+  <button onclick="generateTerrain()">Terrain generieren</button>
+
+  <div class="output" id="terrainOutput"></div>
+
+  <script>
+    const terrains = [
+      'Wald', 'Wüste', 'Sumpf', 'Gebirge', 'Hügel', 'See', 'Fluss', 'Hochebene', 'Steppe', 'Küste'
+    ];
+
+    function generateTerrain() {
+      const random = terrains[Math.floor(Math.random() * terrains.length)];
+      document.getElementById('terrainOutput').textContent = `🌍 Terrain: ${random}`;
+    }
+  </script>
+
+</body>
+</html>
