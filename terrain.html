@@ -52,6 +52,9 @@
     .terrain-item:hover {
       background-color: #f0f0f0;
     }
+    input[type="checkbox"] {
+      transform: scale(1.2);
+    }
   </style>
 </head>
 <body>
@@ -61,90 +64,193 @@
   <button onclick="resetSelections()">🔄 Reset</button>
   <button onclick="goBack()">🔙 Zurück</button>
   <div class="output" id="terrainOutput"></div>
+
   <script>
     const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
 
-    const incompatibleNeighbors = {
-      "Meer": ["Gebirge", "Hochmoor", "Hochebene", "Steppe"],
-      "Wüste": ["Meer", "Sumpf", "Mangrovenwald"],
-      "Sumpf": ["Wüste"]
+    const allTerrains = [
+      'Meer', 'See', 'Fluss', 'Gebirge', 'Savanne', 'Dschungel', 'Wüste', 'Wald', 'Mangrovenwald',
+      'Küste', 'Hochebene', 'Steppe', 'Tundra', 'Taiga', 'Sumpf', 'Moorland', 'Prärie', 'Insel',
+      'Halbinsel', 'Grasland', 'Heide', 'Felsküste', 'Savannengrasland', 'Bambuswald', 'Hochmoor', 'Archipel'
+    ];
+
+    const terrainData = {
+      'Meer': { climate: 'maritim', rarity: 1 },
+      'See': { climate: 'feucht', rarity: 2 },
+      'Fluss': { climate: 'feucht', rarity: 2 },
+      'Gebirge': { climate: 'alle', rarity: 2 },
+      'Savanne': { climate: 'tropisch', rarity: 2 },
+      'Dschungel': { climate: 'tropisch', rarity: 3 },
+      'Wüste': { climate: 'trocken', rarity: 3 },
+      'Wald': { climate: 'feucht', rarity: 1 },
+      'Mangrovenwald': { climate: 'tropisch', rarity: 3 },
+      'Küste': { climate: 'maritim', rarity: 1 },
+      'Hochebene': { climate: 'bergig', rarity: 2 },
+      'Steppe': { climate: 'trocken', rarity: 2 },
+      'Tundra': { climate: 'kalt', rarity: 3 },
+      'Taiga': { climate: 'kalt', rarity: 2 },
+      'Sumpf': { climate: 'feucht', rarity: 2 },
+      'Moorland': { climate: 'trocken', rarity: 3 },
+      'Prärie': { climate: 'trocken', rarity: 2 },
+      'Insel': { climate: 'maritim', rarity: 2 },
+      'Halbinsel': { climate: 'maritim', rarity: 2 },
+      'Grasland': { climate: 'feucht', rarity: 1 },
+      'Heide': { climate: 'trocken', rarity: 2 },
+      'Felsküste': { climate: 'maritim', rarity: 2 },
+      'Savannengrasland': { climate: 'tropisch', rarity: 2 },
+      'Bambuswald': { climate: 'tropisch', rarity: 3 },
+      'Hochmoor': { climate: 'kalt', rarity: 3 },
+      'Archipel': { climate: 'maritim', rarity: 3 }
     };
 
-    const baseTerrains = {
-      "Meer": ["Meer", "Offenes Meer", "Stürmisches Meer", "Flaches Küstenmeer", "Tiefsee"],
-      "See": ["See", "Gebirgssee", "Klarwassersee", "Moorsee", "Großer Binnensee"],
-      "Fluss": ["Fluss", "Reißender Fluss", "Verzweigter Strom", "Breiter Strom", "Schlammiger Fluss"],
-      "Gebirge": ["Gebirge", "Felsiges Gebirge", "Schneebedeckte Gipfel", "Zerklüftetes Hochgebirge", "Steilwandgebirge"],
-      "Savanne": ["Savanne", "Trockensavanne", "Dornsavanne", "Grasreiche Savanne", "Savannenebene"],
-      "Dschungel": ["Dschungel", "Dichter Dschungel", "Nebelwald", "Steiler Dschungelhang", "Urwaldgebiet"],
-      "Wüste": ["Wüste", "Sandwüste", "Felswüste", "Dünengebiet", "Kieswüste"],
-      "Wald": ["Wald", "Dichter Wald", "Bergwald", "Lichter Mischwald", "Feuchtwald"],
-      "Mangrovenwald": ["Mangrovenwald", "Dichter Mangrovenwald", "Brackwasserwald", "Flachwurzlerwald", "Küstennaher Mangrovenwald"],
-      "Küste": ["Küste", "Felsküste", "Sandküste", "Steilküste", "Weitläufige Küstenlinie"],
-      "Hochebene": ["Hochebene", "Trockene Hochebene", "Windige Hochebene", "Karge Hochebene", "Bewachsene Hochebene"],
-      "Steppe": ["Steppe", "Trockene Steppe", "Hügelsteppe", "Kiessteppe", "Weitläufige Steppe"],
-      "Tundra": ["Tundra", "Frosttundra", "Moostundra", "Kahles Tundragebiet", "Windgepeitschte Tundra"],
-      "Taiga": ["Taiga", "Dichte Taiga", "Schneetaiga", "Nadelwaldtaiga", "Hügelige Taiga"],
-      "Sumpf": ["Sumpf", "Schlammsumpf", "Wurzelsumpf", "Feuchtsumpf", "Nebeliger Sumpf"],
-      "Moorland": ["Moorland", "Hochmoor", "Feuchtmoor", "Torfmoor", "Karges Moor"],
-      "Prärie": ["Prärie", "Hügelige Prärie", "Grasprärie", "Steppenprärie", "Weite Prärie"],
-      "Insel": ["Insel", "Vulkaninsel", "Koralleninsel", "Felsinsel", "Tropeninsel"],
-      "Halbinsel": ["Halbinsel", "Küstennahe Halbinsel", "Windige Halbinsel", "Langgezogene Halbinsel", "Gebirgshalbinsel"],
-      "Grasland": ["Grasland", "Weites Grasland", "Feuchtes Grasland", "Blumenreiches Grasland", "Welliges Grasland"],
-      "Heide": ["Heide", "Blühende Heide", "Karge Heide", "Windige Heide", "Grasige Heide"],
-      "Felsküste": ["Felsküste", "Zerklüftete Felsküste", "Steile Felsküste", "Erodierte Felsküste", "Rauhe Felsküste"],
-      "Savannengrasland": ["Savannengrasland", "Trockengrasland", "Grassteppe", "Buschgrasland", "Offene Savanne"],
-      "Bambuswald": ["Bambuswald", "Dichter Bambuswald", "Feuchtbambuswald", "Bergbambuswald", "Bambusdickicht"],
-      "Hochmoor": ["Hochmoor", "Torfiges Hochmoor", "Nasses Hochmoor", "Offenes Hochmoor", "Bewachsenes Hochmoor"],
-      "Archipel": ["Archipel", "Inselgruppe", "Küstenarchipel", "Felsarchipel", "Tropenarchipel"]
+    const terrainVariations = {
+      'Meer': ['Stürmisches Meer', 'Felsenmeer', 'Weites Ozeanbecken', 'Trübes Küstenwasser', 'Tiefseeabschnitt'],
+      'See': ['Hochlandsee', 'Schilfsee', 'Kratersee', 'Dunkelwassersee', 'Sumpfsee'],
+      'Fluss': ['Breiter Fluss', 'Reißender Fluss', 'Verzweigter Fluss', 'Tiefer Fluss', 'Schneller Strom'],
+      'Gebirge': ['Schroffes Gebirge', 'Vulkanisches Gebirge', 'Karges Gebirge', 'Zerklüftetes Gebirge', 'Schneebedecktes Gebirge'],
+      'Savanne': ['Trockensavanne', 'Grasreiche Savanne', 'Buschsavanne', 'Felsige Savanne', 'Hochlandsavanne'],
+      'Dschungel': ['Nebeldschungel', 'Bergdschungel', 'Tiefer Dschungel', 'Lichtdurchfluteter Dschungel', 'Schattenwald'],
+      'Wüste': ['Salzwüste', 'Felswüste', 'Kieselwüste', 'Tafelwüste', 'Sandmeer'],
+      'Wald': ['Laubmischwald', 'Bergwald', 'Lichter Wald', 'Feuchtwald', 'Steinwald'],
+      'Mangrovenwald': ['Flutwald', 'Schlickwald', 'Küstendickicht', 'Wurzelwald', 'Brackwald'],
+      'Küste': ['Sandküste', 'Steilküste', 'Lagunenrand', 'Felsküste', 'Brandungsküste'],
+      'Hochebene': ['Steppenhochland', 'Vulkanisches Plateau', 'Grünplateau', 'Felsplateau', 'Waldhochland'],
+      'Steppe': ['Grassteppe', 'Felssteppe', 'Buschsteppe', 'Hügellandsteppe', 'Halbwüstensteppe'],
+      'Tundra': ['Frosttundra', 'Flechtendtundra', 'Feuchttundra', 'Kieseltundra', 'Hügeltundra'],
+      'Taiga': ['Lichttaiga', 'Nadelwaldtaiga', 'Moorige Taiga', 'Steintaiga', 'Schneegrenze-Taiga'],
+      'Sumpf': ['Tiefer Sumpf', 'Schilfsumpf', 'Modriger Sumpf', 'Verlandeter Sumpf', 'Wassergras-Sumpf'],
+      'Moorland': ['Hochmoor', 'Niedermoor', 'Torfland', 'Heidemoor', 'Bruchmoor'],
+      'Prärie': ['Blumenprärie', 'Hügelprärie', 'Grasprärie', 'Trockenprärie', 'Wellenprärie'],
+      'Insel': ['Felseninsel', 'Sandinsel', 'Vulkaninsel', 'Koralleninsel', 'Flussinsel'],
+      'Halbinsel': ['Dünenhalbinsel', 'Felshalbinsel', 'Waldhalbinsel', 'Steppenhalbinsel', 'Buchtenhalbinsel'],
+      'Grasland': ['Hohes Grasland', 'Feuchtes Grasland', 'Karggrasland', 'Windgrasland', 'Blütenfeld'],
+      'Heide': ['Trockenheide', 'Grasheide', 'Felsenheide', 'Blumenheide', 'Nebelheide'],
+      'Felsküste': ['Basaltküste', 'Klippenküste', 'Geröllküste', 'Schieferküste', 'Abbruchküste'],
+      'Savannengrasland': ['Grüne Savanne', 'Dornengrasland', 'Lichtgrasland', 'Savannensteppe', 'Steppengras'],
+      'Bambuswald': ['Bergbambuswald', 'Feuchtbambuswald', 'Lichtbambuswald', 'Dichter Bambushain', 'Wildbambuswald'],
+      'Hochmoor': ['Windhochmoor', 'Wasserhochmoor', 'Steinhochmoor', 'Krüppelholzmoor', 'Grashochmoor'],
+      'Archipel': ['Korallenarchipel', 'Vulkanarchipel', 'Küstenarchipel', 'Felsenarchipel', 'Lagunenarchipel']
     };
 
-    function createDropdown(name) {
-      const wrapper = document.createElement("div");
-      wrapper.className = "dropdown";
 
-      const button = document.createElement("div");
-      button.className = "dropdown-button";
-      button.textContent = name + " 0/3";
+    function getRandomTerrain(neighborTerrains) {
+      const climateCounts = {};
+      neighborTerrains.forEach(t => {
+        const data = terrainData[t];
+        if (data && data.climate !== 'alle') {
+          climateCounts[data.climate] = (climateCounts[data.climate] || 0) + 1;
+        }
+      });
+      const mainClimate = Object.keys(climateCounts).sort((a, b) => climateCounts[b] - climateCounts[a])[0];
+      const compatible = Object.entries(terrainData).filter(([name, data]) => {
+        if (data.climate === 'alle') return true;
+        if (!mainClimate) return true;
+        return !((data.climate === 'kalt' && mainClimate === 'tropisch') || (data.climate === 'tropisch' && mainClimate === 'kalt'));
+      });
+      const weighted = [];
+      compatible.forEach(([name, data]) => {
+        const baseWeight = Math.max(1, 4 - data.rarity);
+        for (let i = 0; i < baseWeight; i++) weighted.push(name);
+        if (terrainVariations[name]) {
+          terrainVariations[name].forEach(variant => {
+            if (Math.random() < 0.2) weighted.push(variant);
+          });
+        }
+      });
+      return weighted.length ? weighted[Math.floor(Math.random() * weighted.length)] : allTerrains[Math.floor(Math.random() * allTerrains.length)];
+    }
 
-      const menu = document.createElement("div");
-      menu.className = "dropdown-menu";
-
-      for (const type of Object.keys(baseTerrains)) {
-        const item = document.createElement("label");
-        item.className = "terrain-item";
-
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.value = type;
-        cb.addEventListener("change", () => {
-          const checkedItems = menu.querySelectorAll("input[type=checkbox]:checked");
-          const count = checkedItems.length;
-          const selectedNames = Array.from(checkedItems).map(cb => cb.value).join(", ");
-          button.textContent = `${name} ${count}/3${count > 0 ? ': ' + selectedNames : ''}`;
-        });
-
-        item.appendChild(cb);
-        item.appendChild(document.createTextNode(type));
-        menu.appendChild(item);
+    function generateTerrain() {
+      const output = document.getElementById('terrainOutput');
+      const selected = [];
+      directions.forEach(dir => {
+        const checked = document.querySelectorAll(`input[name^="${dir}-"]:checked`);
+        checked.forEach(cb => selected.push(cb.value));
+      });
+      const results = [];
+      for (let i = 0; i < 3; i++) {
+        const terrain = getRandomTerrain(selected);
+        const origin = selected.includes(terrain) ? '(Nachbar)' : '(Zufall)';
+        results.push(`${terrain} ${origin}`);
       }
+      output.textContent = results.join('\n');
+    }
 
-      wrapper.appendChild(button);
-      wrapper.appendChild(menu);
-
-      button.addEventListener("click", (e) => {
+    function createDropdown(dir) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'neighbor';
+      const label = document.createElement('label');
+      label.textContent = dir;
+      wrapper.appendChild(label);
+      const dropdown = document.createElement('div');
+      dropdown.className = 'dropdown';
+      const button = document.createElement('div');
+      button.className = 'dropdown-button';
+      button.textContent = `${dir} 0/3`;
+      button.addEventListener('click', (e) => {
         e.stopPropagation();
-        document.querySelectorAll(".dropdown").forEach(d => { if (d !== wrapper) d.classList.remove("open"); });
-        wrapper.classList.toggle("open");
+        closeAllDropdowns();
+        dropdown.classList.toggle('open');
       });
-
-      menu.addEventListener("click", (e) => e.stopPropagation());
-      document.addEventListener("click", () => {
-        document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open"));
+      const menu = document.createElement('div');
+      menu.className = 'dropdown-menu';
+      allTerrains.forEach(terrain => {
+        const item = document.createElement('div');
+        item.className = 'terrain-item';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = terrain;
+        checkbox.name = `${dir}-${terrain}`;
+        checkbox.addEventListener('change', () => {
+          const selected = menu.querySelectorAll('input:checked');
+          const names = Array.from(selected).map(cb => cb.value);
+          button.textContent = `${dir} ${selected.length}/3: ${names.join(', ')}`;
+          if (selected.length >= 3) {
+            menu.querySelectorAll('input:not(:checked)').forEach(cb => cb.disabled = true);
+          } else {
+            menu.querySelectorAll('input').forEach(cb => cb.disabled = false);
+          }
+        });
+        const label = document.createElement('label');
+        label.textContent = terrain;
+        label.prepend(checkbox);
+        item.appendChild(label);
+        menu.appendChild(item);
       });
-
+      dropdown.appendChild(button);
+      dropdown.appendChild(menu);
+      wrapper.appendChild(dropdown);
       return wrapper;
     }
+
+    function setupInputs() {
+      const container = document.getElementById('neighborInputs');
+      directions.forEach(dir => {
+        const dropdown = createDropdown(dir);
+        container.appendChild(dropdown);
+      });
+      document.body.addEventListener('click', () => closeAllDropdowns());
+    }
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('open'));
+    }
+
+    function resetSelections() {
+      document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+        cb.disabled = false;
+      });
+      document.querySelectorAll('.dropdown-button').forEach((btn, i) => {
+        btn.textContent = `${directions[i]} 0/3`;
+      });
+    }
+
+    function goBack() {
+      window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
+    }
+
+    setupInputs();
   </script>
 </body>
 </html>
