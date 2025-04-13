@@ -1,12 +1,9 @@
-<updates>
-  <update>
-    <pattern>.*</pattern>
-    <replacement>&lt;!DOCTYPE html&gt;
-&lt;html lang="de"&gt;
-&lt;head&gt;
-  &lt;meta charset="UTF-8"&gt;
-  &lt;title&gt;Terrain-Generator&lt;/title&gt;
-  &lt;style&gt;
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Terrain-Generator</title>
+  <style>
     body { font-family: sans-serif; padding: 2em; max-width: 900px; margin: auto; }
     button { font-size: 1em; padding: 0.5em; margin: 1em 0.5em 0 0; }
     .output { margin-top: 1em; font-weight: bold; white-space: pre-line; }
@@ -45,52 +42,69 @@
     .dropdown.open .dropdown-menu {
       display: block;
     }
-    .terrain-item { display: flex; align-items: center; gap: 0.5em; padding: 0.3em 0.5em; }
-    .terrain-item:hover { background-color: #f0f0f0; }
-  &lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-  &lt;h2&gt;⛰️ Terrain-Generator (Dropdown-Version)&lt;/h2&gt;
-
-  &lt;div class="neighbor-group" id="neighborInputs"&gt;&lt;/div&gt;
-
-  &lt;button onclick="generateTerrain()"&gt;Terrain generieren&lt;/button&gt;
-  &lt;button onclick="resetSelections()"&gt;🔄 Reset&lt;/button&gt;
-  &lt;button onclick="goBack()"&gt;🔙 Zurück&lt;/button&gt;
-
-  &lt;div class="output" id="terrainOutput"&gt;&lt;/div&gt;
-
-  &lt;script&gt;
+    .terrain-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      padding: 0.3em 0.5em;
+      position: relative;
+    }
+    .terrain-item:hover {
+      background-color: #f0f0f0;
+    }
+    .terrain-item:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 5px;
+      white-space: nowrap;
+      z-index: 9999;
+      margin-top: 2px;
+      font-size: 0.85em;
+    }
+  </style>
+</head>
+<body>
+  <h2>⛰️ Terrain-Generator (Dropdown-Version)</h2>
+  <div class="neighbor-group" id="neighborInputs"></div>
+  <button onclick="generateTerrain()">Terrain generieren</button>
+  <button onclick="resetSelections()">🔄 Reset</button>
+  <button onclick="goBack()">🔙 Zurück</button>
+  <div class="output" id="terrainOutput"></div>
+  <script>
     const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
 
     const baseTerrains = {
-      "Meer": ["Meer", "Tiefsee", "Kaltwassermeer", "Stilles Meer", "Gezeitenküste", "Sturmsee"],
-      "See": ["See", "Kratersee", "Klarwassersee", "Steppensee", "Moossee", "Bergsee"],
-      "Fluss": ["Fluss", "Nebenarm", "Gebirgsfluss", "Deltaschlucht", "Schwemmland", "Verzweigter Fluss"],
-      "Gebirge": ["Gebirge", "Kammgebirge", "Zerklüftetes Gebirge", "Hochgebirge", "Basaltklippen", "Granitberge"],
-      "Savanne": ["Savanne", "Trockensavanne", "Steinige Savanne", "Hügelsavanne", "Offene Savanne", "Baumsavanne"],
-      "Dschungel": ["Dschungel", "Bergdschungel", "Nebeldschungel", "Urwaldrand", "Feuchtdschungel", "Tieflanddschungel"],
-      "Wüste": ["Wüste", "Sandwüste", "Steinwüste", "Salzwüste", "Kieswüste", "Felswüste"],
+      "Meer": ["Meer", "Tiefsee", "Offenes Meer", "Kaltwassermeer", "Stillwasser", "Gezeitenküste"],
+      "See": ["See", "Kratersee", "Klarwassersee", "Dunkelsee", "Steppensee", "Moossee"],
+      "Fluss": ["Fluss", "Schwemmland", "Gebirgsfluss", "Deltaschlucht", "Nebenarm", "Verwilderter Fluss"],
+      "Gebirge": ["Gebirge", "Kammgebirge", "Zerklüftetes Gebirge", "Felsmassiv", "Hochgebirge", "Basaltklippen"],
+      "Savanne": ["Savanne", "Trockensavanne", "Hügelsavanne", "Steinige Savanne", "Offene Savanne", "Savannenbecken"],
+      "Dschungel": ["Dschungel", "Nebeldschungel", "Bergwald", "Dichter Dschungel", "Randwald", "Moosdschungel"],
+      "Wüste": ["Wüste", "Sandwüste", "Steinwüste", "Salzwüste", "Windwüste", "Kieswüste"],
       "Wald": ["Wald", "Laubwald", "Mischwald", "Dichter Wald", "Nadelwald", "Bergwald"],
-      "Mangrovenwald": ["Mangrovenwald", "Tidenwald", "Salzwasserwald", "Wurzelwald", "Feuchtwald", "Küstenhain"],
-      "Küste": ["Küste", "Sandküste", "Felsenküste", "Steilküste", "Lagune", "Kiesstrand"],
-      "Hochebene": ["Hochebene", "Felsplateau", "Trockene Hochebene", "Windebene", "Grasplateau", "Steppenhochland"],
-      "Steppe": ["Steppe", "Grassteppe", "Trockensteppe", "Windsteppe", "Felsensteppe", "Kaltsteppe"],
+      "Mangrovenwald": ["Mangrovenwald", "Tidenwald", "Salzwasserwald", "Wurzelwald", "Küstenhain", "Feuchtwald"],
+      "Küste": ["Küste", "Sandküste", "Felsenküste", "Lagune", "Steilküste", "Kiesstrand"],
+      "Hochebene": ["Hochebene", "Plateau", "Hochsteppe", "Felsplateau", "Windebene", "Trockene Hochebene"],
+      "Steppe": ["Steppe", "Grassteppe", "Trockensteppe", "Kaltsteppe", "Windsteppe", "Felsensteppe"],
       "Tundra": ["Tundra", "Flechtensteppe", "Frostboden", "Eisgrasland", "Kargtundra", "Moortundra"],
-      "Taiga": ["Taiga", "Nadeltaiga", "Moostaiga", "Frostwald", "Schneetaiga", "Lichttaiga"],
+      "Taiga": ["Taiga", "Nadeltaiga", "Moostaiga", "Frostwald", "Schneetaiga", "Schattenwald"],
       "Sumpf": ["Sumpf", "Bruchsumpf", "Wurzelsumpf", "Dunkelsumpf", "Feuchtsumpf", "Flachsumpf"],
-      "Moorland": ["Moorland", "Heidemoor", "Torfland", "Schilfmoor", "Waldmoor", "Kaltmoor"],
-      "Prärie": ["Prärie", "Grasprärie", "Trockene Prärie", "Buschprärie", "Hügelprärie", "Blütenprärie"],
+      "Moorland": ["Moorland", "Heidemoor", "Torfland", "Schilfmoor", "Kaltmoor", "Waldmoor"],
+      "Prärie": ["Prärie", "Hügelprärie", "Grasprärie", "Trockene Prärie", "Buschprärie", "Blütenprärie"],
       "Insel": ["Insel", "Vulkaninsel", "Koralleninsel", "Klippeninsel", "Sandinsel", "Dschungelinsel"],
-      "Halbinsel": ["Halbinsel", "Sandhalbinsel", "Felsige Halbinsel", "Bewaldete Halbinsel", "Niedrige Halbinsel", "Windhalbinsel"],
-      "Grasland": ["Grasland", "Feuchtgrasland", "Trockenwiese", "Hügelgrasland", "Ebenes Grasland", "Hochgrasfläche"],
+      "Halbinsel": ["Halbinsel", "Felsige Halbinsel", "Sandhalbinsel", "Bewaldete Halbinsel", "Windhalbinsel", "Niedrige Halbinsel"],
+      "Grasland": ["Grasland", "Hügelgrasland", "Feuchtgrasland", "Trockenwiese", "Hochgrasfläche", "Ebenes Grasland"],
       "Heide": ["Heide", "Blütenheide", "Kiesheide", "Hügelheide", "Feuchte Heide", "Trockene Heide"],
-      "Felsküste": ["Felsküste", "Brandungsküste", "Klippenküste", "Steinstrand", "Windküste", "Geröllküste"],
+      "Felsküste": ["Felsküste", "Brandungsküste", "Klippenküste", "Geröllküste", "Windküste", "Steinstrand"],
       "Savannengrasland": ["Savannengrasland", "Offenes Grasland", "Steppengras", "Buschgrasland", "Trockengrasland", "Savannengürtel"],
-      "Bambuswald": ["Bambuswald", "Hochbambuswald", "Feuchtbambus", "Lichtbambus", "Bergbambus", "Dichtbambus"],
-      "Hochmoor": ["Hochmoor", "Torfboden", "Nebelmoor", "Grasmoor", "Wasserhochland", "Frostmoor"],
-      "Archipel": ["Archipel", "Inselgruppe", "Felsarchipel", "Tropenarchipel", "Korallenarchipel", "Windarchipel"]
+      "Bambuswald": ["Bambuswald", "Hochbambuswald", "Feuchtbambus", "Bergbambus", "Lichtbambus", "Dichtbambus"],
+      "Hochmoor": ["Hochmoor", "Torfboden", "Nebelmoor", "Wasserhochland", "Grasmoor", "Frostmoor"],
+      "Archipel": ["Archipel", "Inselgruppe", "Korallenarchipel", "Felsarchipel", "Tropenarchipel", "Windarchipel"]
     };
 
     const groupedA = {
@@ -110,50 +124,54 @@
 
     function getSelectedTerrains() {
       const selected = [];
-      document.querySelectorAll('.dropdown-menu input[type=checkbox]:checked').forEach(cb => selected.push(cb.value));
+      document.querySelectorAll('.dropdown-menu input[type=checkbox]:checked').forEach(cb => {
+        selected.push(cb.value);
+      });
       return selected;
     }
 
     function isCompatible(terrain, neighbors) {
       const base = Object.keys(baseTerrains).find(k => baseTerrains[k].includes(terrain));
-      const zone = getClimateZone(base);
+      const terrainZone = getClimateZone(base);
       return neighbors.every(n => {
-        const nZone = getClimateZone(n);
-        return !nZone || nZone === zone;
+        const neighborZone = getClimateZone(n);
+        return terrainZone === neighborZone || !neighborZone;
       });
     }
 
     function generateTerrain() {
-      const selected = getSelectedTerrains();
-      let weighted = [];
+      const selectedTerrains = getSelectedTerrains();
+      const neighbors = selectedTerrains.map(v => v);
 
+      let weightedPool = [];
       for (const [type, variations] of Object.entries(baseTerrains)) {
-        variations.forEach((v, i) =&gt; {
-          const rarity = (v === type) ? 10 : 1;
-          for (let r = 0; r &lt; rarity; r++) weighted.push(v);
+        variations.forEach((v, i) => {
+          const rarity = v === type ? 10 : 1;
+          for (let r = 0; r < rarity; r++) {
+            weightedPool.push(v);
+          }
         });
       }
 
       const results = [];
-      let attempts = 0;
-
-      while (results.length &lt; 3 &amp;&amp; attempts &lt; 1000) {
-        const candidate = weighted[Math.floor(Math.random() * weighted.length)];
-        if (isCompatible(candidate, selected)) {
-          const source = selected.includes(candidate) ? "Aus Nachbarn" : "Zufällig";
-          results.push(`${source}: ${candidate}`);
+      let tries = 0;
+      while (results.length < 3 && tries < 1000) {
+        const candidate = weightedPool[Math.floor(Math.random() * weightedPool.length)];
+        if (isCompatible(candidate, neighbors)) {
+          results.push(candidate);
         }
-        attempts++;
+        tries++;
       }
 
-      document.getElementById("terrainOutput").textContent = results.length
-        ? results.join("\n")
-        : "⚠️ Kein passendes Terrain gefunden.";
+      const output = document.getElementById('terrainOutput');
+      output.textContent = results.length
+        ? results.map(t => selectedTerrains.includes(t) ? `Aus Nachbarn: ${t}` : `Zufällig: ${t}`).join("\n")
+        : '⚠️ Kein passendes Terrain gefunden (klimatische Inkompatibilität?)';
     }
 
     function resetSelections() {
-      document.querySelectorAll('input[type=checkbox]').forEach(cb =&gt; cb.checked = false);
-      document.querySelectorAll('.dropdown-button').forEach(btn =&gt; btn.textContent = btn.textContent.split(' ')[0] + ' 0/3');
+      document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('.dropdown-button').forEach(btn => btn.textContent = btn.textContent.split(' ')[0] + ' 0/3');
     }
 
     function goBack() {
@@ -171,41 +189,36 @@
       const menu = document.createElement("div");
       menu.className = "dropdown-menu";
 
-      const checkboxes = [];
-
       for (const type of Object.keys(baseTerrains)) {
         const item = document.createElement("label");
         item.className = "terrain-item";
+        item.setAttribute("data-tooltip", baseTerrains[type].slice(1).join(", "));
 
         const cb = document.createElement("input");
         cb.type = "checkbox";
         cb.value = type;
-        cb.addEventListener("change", () =&gt; {
-          const count = checkboxes.filter(c =&gt; c.checked).length;
+        cb.addEventListener("change", () => {
+          const count = menu.querySelectorAll("input[type=checkbox]:checked").length;
           button.textContent = `${name} ${count}/3`;
-          checkboxes.forEach(c =&gt; {
-            if (!c.checked) c.disabled = count &gt;= 3;
-          });
         });
 
         item.appendChild(cb);
         item.appendChild(document.createTextNode(type));
         menu.appendChild(item);
-        checkboxes.push(cb);
       }
 
       wrapper.appendChild(button);
       wrapper.appendChild(menu);
 
-      button.addEventListener("click", (e) =&gt; {
+      button.addEventListener("click", (e) => {
         e.stopPropagation();
-        document.querySelectorAll(".dropdown").forEach(d =&gt; { if (d !== wrapper) d.classList.remove("open"); });
+        document.querySelectorAll(".dropdown").forEach(d => { if (d !== wrapper) d.classList.remove("open"); });
         wrapper.classList.toggle("open");
       });
 
-      menu.addEventListener("click", (e) =&gt; e.stopPropagation());
-      document.addEventListener("click", () =&gt; {
-        document.querySelectorAll(".dropdown").forEach(d =&gt; d.classList.remove("open"));
+      menu.addEventListener("click", (e) => e.stopPropagation());
+      document.addEventListener("click", () => {
+        document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open"));
       });
 
       return wrapper;
@@ -214,7 +227,7 @@
     function createNeighborInputs() {
       const container = document.getElementById("neighborInputs");
       container.innerHTML = "";
-      directions.forEach(dir =&gt; {
+      directions.forEach(dir => {
         const wrapper = document.createElement("div");
         wrapper.className = "neighbor";
 
@@ -230,9 +243,6 @@
     }
 
     window.onload = createNeighborInputs;
-  &lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</replacement>
-  </update>
-</updates>
+  </script>
+</body>
+</html>
