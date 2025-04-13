@@ -19,41 +19,48 @@
   <div class="output" id="terrainOutput"></div>
 
   <script>
-    const groupedA = {
-      "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
-      "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
-      "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
-      "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
-      "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
-      "bergig": ['Gebirge', 'Hochebene', 'Hügel']
-    };
-  
-    const tableB = [/* ... bleibt wie gehabt ... */];
-    const tableC = [/* ... bleibt wie gehabt ... */];
-  
-    function getRandomElements(arr, count) {
-      const shuffled = [...arr].sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, count);
-    }
-  
-    function generateTerrain() {
-      // 1. Tabelle A: passende Gruppe wählen
-      const groups = Object.values(groupedA);
-      const randomGroup = groups[Math.floor(Math.random() * groups.length)];
-      const aItems = getRandomElements(randomGroup, Math.min(3, randomGroup.length));
-  
-      // 2. Tabelle B & C wie bisher
-      const bItems = getRandomElements(tableB, 3);
-      const cItem = getRandomElements(tableC, 1)[0];
-  
-      const output = `🌍 Allgemein: ${aItems.join(', ')}\n🪨 Detail: ${bItems.join(', ')}\n✨ Spezial: ${cItem}`;
-      document.getElementById('terrainOutput').textContent = output;
-    }
-  
-    function goBack() {
-      window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
-    }
+  const groupedA = {
+    "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
+    "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
+    "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
+    "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
+    "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
+    "bergig": ['Gebirge', 'Hochebene', 'Hügel']
+  };
+
+  const tableB = [/* ... bleibt wie gehabt ... */];
+  const tableC = [/* ... bleibt wie gehabt ... */];
+
+  function getRandomElements(arr, count) {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+  }
+
+  function getTwoDistinctKeys(obj) {
+    const keys = Object.keys(obj);
+    const shuffled = keys.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 2);
+  }
+
+  function generateTerrain() {
+    // 1. Zwei unterschiedliche Gruppen aus Tabelle A wählen
+    const [group1, group2] = getTwoDistinctKeys(groupedA);
+    const combined = [...groupedA[group1], ...groupedA[group2]];
+    const aItems = getRandomElements(combined, Math.min(3, combined.length));
+
+    // 2. Tabelle B & C wie bisher
+    const bItems = getRandomElements(tableB, 3);
+    const cItem = getRandomElements(tableC, 1)[0];
+
+    const output = `🌍 Allgemein: ${aItems.join(', ')}\n🪨 Detail: ${bItems.join(', ')}\n✨ Spezial: ${cItem}`;
+    document.getElementById('terrainOutput').textContent = output;
+  }
+
+  function goBack() {
+    window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
+  }
   </script>
+
 
 
 </body>
