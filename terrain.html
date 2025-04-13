@@ -26,118 +26,175 @@
   <div class="output" id="terrainOutput"></div>
 
   <script>
-    const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
-    const allTerrains = [
-      'Meer', 'See', 'Fluss', 'Gebirge', 'Savanne', 'Dschungel', 'Wüste',
-      'Wald', 'Mangrovenwald', 'Küste', 'Hochebene', 'Steppe', 'Tundra',
-      'Taiga', 'Sumpf', 'Moorland', 'Prärie', 'Insel', 'Halbinsel',
-      'Grasland', 'Heide', 'Felsküste', 'Savannengrasland', 'Regenwald',
-      'Feuchtgebiet', 'Bambuswald', 'Hochmoor', 'Archipel', 'Hügel'
-    ];
+  const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
+  const allTerrains = [
+    'Meer', 'See', 'Fluss', 'Gebirge', 'Savanne', 'Dschungel', 'Wüste',
+    'Wald', 'Mangrovenwald', 'Küste', 'Hochebene', 'Steppe', 'Tundra',
+    'Taiga', 'Sumpf', 'Moorland', 'Prärie', 'Insel', 'Halbinsel',
+    'Grasland', 'Heide', 'Felsküste', 'Savannengrasland', 'Regenwald',
+    'Feuchtgebiet', 'Bambuswald', 'Hochmoor', 'Archipel', 'Hügel'
+  ];
 
-    const groupedA = {
-      "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
-      "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
-      "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
-      "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
-      "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
-      "bergig": ['Gebirge', 'Hochebene', 'Hügel']
-    };
+  const groupedA = {
+    "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
+    "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
+    "trocken": ['Wüste', 'Steppe', 'Moorland', 'Heide'],
+    "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
+    "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
+    "bergig": ['Gebirge', 'Hochebene', 'Hügel']
+  };
 
-    function createDropdown(id) {
-      const select = document.createElement('select');
-      select.id = id;
-      select.multiple = true;
-      select.size = 4;
-      select.style.minWidth = '140px';
+  function createDropdown(id) {
+    const select = document.createElement('select');
+    select.id = id;
+    select.multiple = true;
+    select.size = 4;
+    select.style.minWidth = '140px';
 
-      const emptyOption = document.createElement('option');
-      emptyOption.disabled = true;
-      emptyOption.selected = true;
-      emptyOption.textContent = '-- auswählen --';
-      select.appendChild(emptyOption);
+    const emptyOption = document.createElement('option');
+    emptyOption.disabled = true;
+    emptyOption.selected = true;
+    emptyOption.textContent = '-- auswählen --';
+    select.appendChild(emptyOption);
 
-      allTerrains.forEach(terrain => {
-        const option = document.createElement('option');
-        option.value = terrain;
-        option.textContent = terrain;
-        select.appendChild(option);
-      });
+    allTerrains.forEach(terrain => {
+      const option = document.createElement('option');
+      option.value = terrain;
+      option.textContent = terrain;
+      select.appendChild(option);
+    });
 
-      return select;
+    return select;
+  }
+
+  function setupInputs() {
+    const container = document.getElementById('neighborInputs');
+    directions.forEach(dir => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'neighbor';
+
+      const label = document.createElement('label');
+      label.textContent = dir;
+      wrapper.appendChild(label);
+
+      const dropdown = createDropdown(dir.toLowerCase());
+      wrapper.appendChild(dropdown);
+
+      container.appendChild(wrapper);
+    });
+  }
+
+  function getSelectedTerrains() {
+    return directions.map(dir => {
+      const sel = document.getElementById(dir.toLowerCase());
+      return Array.from(sel.selectedOptions).map(opt => opt.value);
+    });
+  }
+
+  function getRandomElements(arr, count) {
+    const shuffled = [...arr].sort(() => 0.5 - Math.random());
+    const unique = [...new Set(shuffled)];
+    return unique.slice(0, count);
+  }
+
+  function getTwoDistinctKeys(obj) {
+    const keys = Object.keys(obj);
+    const shuffled = keys.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, 2);
+  }
+
+  function generateContextAwareTerrain(neighbors) {
+    const allNeighborTerrains = neighbors.flat().filter(Boolean);
+    const numContextTerrains = allNeighborTerrains.length;
+
+    // Fallback bei zu wenig Kontext
+    if (numContextTerrains < 3) {
+      const [g1, g2] = getTwoDistinctKeys(groupedA);
+      const combined = [...groupedA[g1], ...groupedA[g2]];
+      return getRandomElements(combined, 3);
     }
 
-    function setupInputs() {
-      const container = document.getElementById('neighborInputs');
-      directions.forEach(dir => {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'neighbor';
+    const contextSet = [...new Set(allNeighborTerrains)];
+    const result = [];
 
-        const label = document.createElement('label');
-        label.textContent = dir;
-        wrapper.appendChild(label);
+    for (let i = 0; i < 3; i++) {
+      const chanceRandom = Math.min(1, Math.pow(0.85, numContextTerrains / 3));
+      const isRandom = Math.random() < chanceRandom;
 
-        const dropdown = createDropdown(dir.toLowerCase());
-        wrapper.appendChild(dropdown);
-
-        container.appendChild(wrapper);
-      });
+      if (isRandom || contextSet.length === 0) {
+        let candidate;
+        do {
+          candidate = getRandomElements(allTerrains, 1)[0];
+        } while (result.includes(candidate));
+        result.push(candidate);
+      } else {
+        let candidate;
+        do {
+          candidate = getRandomElements(contextSet, 1)[0];
+        } while (result.includes(candidate));
+        result.push(candidate);
+      }
     }
 
-    function getSelectedTerrains() {
-      return directions.map(dir => {
-        const sel = document.getElementById(dir.toLowerCase());
-        return Array.from(sel.selectedOptions).map(opt => opt.value);
-      });
-    }
+    return result;
+  }
 
-    function getRandomElements(arr, count) {
-      const shuffled = [...arr].sort(() => 0.5 - Math.random());
-      const unique = [...new Set(shuffled)];
-      return unique.slice(0, count);
-    }
+  function generateTerrain() {
+  const neighbors = getSelectedTerrains();
+  const allNeighborTerrains = neighbors.flat().filter(Boolean);
+  const numContextTerrains = allNeighborTerrains.length;
 
-    function getTwoDistinctKeys(obj) {
-      const keys = Object.keys(obj);
-      const shuffled = keys.sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, 2);
-    }
+  let result = [];
 
-    function generateContextAwareTerrain(neighbors) {
-      const allNeighborTerrains = neighbors.filter(n => n.length > 0).flat();
+  if (numContextTerrains < 3) {
+    // Zu wenig Kontext → komplett zufällig
+    const [g1, g2] = getTwoDistinctKeys(groupedA);
+    const combined = [...groupedA[g1], ...groupedA[g2]];
+    const randomTerrains = getRandomElements(combined, 3);
+    result = randomTerrains.map(t => ({ name: t, source: 'zufällig' }));
+  } else {
+    const contextSet = [...new Set(allNeighborTerrains)];
 
-      if (allNeighborTerrains.length === 0) {
-        const [group1, group2] = getTwoDistinctKeys(groupedA);
-        const combined = [...groupedA[group1], ...groupedA[group2]];
-        return getRandomElements(combined, 3);
+    for (let i = 0; i < 3; i++) {
+      const chanceRandom = Math.min(1, Math.pow(0.85, numContextTerrains / 3));
+      const isRandom = Math.random() < chanceRandom;
+
+      let candidate;
+      let source;
+
+      if (isRandom || contextSet.length === 0) {
+        do {
+          candidate = getRandomElements(allTerrains, 1)[0];
+        } while (result.map(r => r.name).includes(candidate));
+        source = 'zufällig';
+      } else {
+        do {
+          candidate = getRandomElements(contextSet, 1)[0];
+        } while (result.map(r => r.name).includes(candidate));
+        source = 'Kontext';
       }
 
-      const weightedPool = [];
-      for (let terrain of allNeighborTerrains) {
-        const weight = allNeighborTerrains.filter(t => t === terrain).length;
-        for (let i = 0; i < weight; i++) {
-          weightedPool.push(terrain);
-        }
-      }
-
-      const shuffled = [...weightedPool].sort(() => 0.5 - Math.random());
-      const unique = [...new Set(shuffled)];
-      return unique.slice(0, 3);
+      result.push({ name: candidate, source });
     }
+  }
 
-    function generateTerrain() {
-      const neighbors = getSelectedTerrains();
-      const aItems = generateContextAwareTerrain(neighbors);
-      const output = `🌍 Oberwelt: ${aItems.join(', ')}`;
-      document.getElementById('terrainOutput').textContent = output;
-    }
+  const outputLines = result.map(r =>
+    r.source === 'Kontext'
+      ? `✅ ${r.name} (aus Nachbar-Tiles)`
+      : `✨ ${r.name} (zufällig)`
+  );
 
-    function goBack() {
-      window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
-    }
+  document.getElementById('terrainOutput').textContent = `🌍 Allgemein:\n${outputLines.join('\n')}`;
+}
 
-    setupInputs();
-  </script>
+
+  function goBack() {
+    window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
+  }
+
+  setupInputs();
+</script>
+
 
 </body>
 </html>
