@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Wetter-Generator</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; max-width: 500px; margin: auto; }
+    select, button { font-size: 1em; padding: 0.5em; margin: 0.5em 0; }
+    .output { margin-top: 1em; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h2>Zufalls-Wettergenerator 🌤️</h2>
+
+  <label>Jahreszeit:
+    <select id="season">
+      <option value="Frühling">Frühling</option>
+      <option value="Sommer">Sommer</option>
+      <option value="Herbst">Herbst</option>
+      <option value="Winter">Winter</option>
+    </select>
+  </label><br>
+
+  <label>Tageszeit:
+    <select id="timeOfDay">
+      <option value="Tag">Tag</option>
+      <option value="Nacht">Nacht</option>
+    </select>
+  </label><br>
+
+  <button onclick="generateWeather()">Wetter generieren</button>
+
+  <div class="output" id="weatherOutput"></div>
+
+  <script>
+    function getRandom(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    const temperatureRanges = {
+      Frühling: [5, 21],
+      Sommer: [18, 38],
+      Herbst: [5, 24],
+      Winter: [-20, 10]
+    };
+
+    const weatherEffects = {
+      Frühling: ['leicht bewölkt', 'sonnig', 'Regenschauer', 'windig', 'neblig'],
+      Sommer: ['sonnig', 'heiß', 'Gewitter', 'trocken', 'windstill'],
+      Herbst: ['bedeckt', 'Regenschauer', 'neblig', 'windig', 'klar'],
+      Winter: ['Schnee', 'bewölkt', 'klar', 'Eisregen', 'stark bewölkt']
+    };
+
+    function generateWeather() {
+      const season = document.getElementById('season').value;
+      const timeOfDay = document.getElementById('timeOfDay').value;
+
+      const [minTemp, maxTemp] = temperatureRanges[season];
+      let temp = Math.floor(Math.random() * (maxTemp - minTemp + 1)) + minTemp;
+
+      // Nachts etwas kühler
+      if (timeOfDay === 'Nacht') {
+        temp -= Math.floor(Math.random() * 5);
+      }
+
+      const effect = getRandom(weatherEffects[season]);
+
+      const output = `🌡️ Temperatur: ${temp}°C<br>🌦️ Wetter: ${effect}<br>🕒 Tageszeit: ${timeOfDay}`;
+      document.getElementById('weatherOutput').innerHTML = output;
+    }
+  </script>
+
+</body>
+</html>
