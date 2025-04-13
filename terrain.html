@@ -4,50 +4,20 @@
   <meta charset="UTF-8">
   <title>Terrain-Generator</title>
   <style>
-    body { font-family: sans-serif; padding: 2em; max-width: 800px; margin: auto; }
+    body { font-family: sans-serif; padding: 2em; max-width: 900px; margin: auto; }
     button { font-size: 1em; padding: 0.5em; margin: 1em 0.5em 0 0; }
     .output { margin-top: 1em; font-weight: bold; white-space: pre-line; }
-    .neighbor-group { display: flex; flex-wrap: wrap; gap: 1em; }
+    .neighbor-group { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1em; }
     .neighbor { display: flex; flex-direction: column; }
+    label { font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <h2>⛰️ Terrain-Generator</h2>
+  <h2>⛰️ Terrain-Generator (Dropdown-Version)</h2>
 
-  <div class="neighbor-group">
-    <div class="neighbor">
-      <label for="n">N</label>
-      <input id="n" placeholder="z.B. Wald,Hügel,Fluss">
-    </div>
-    <div class="neighbor">
-      <label for="no">NO</label>
-      <input id="no" placeholder="optional">
-    </div>
-    <div class="neighbor">
-      <label for="o">O</label>
-      <input id="o" placeholder="z.B. Gebirge,Hügel,Wald">
-    </div>
-    <div class="neighbor">
-      <label for="so">SO</label>
-      <input id="so" placeholder="optional">
-    </div>
-    <div class="neighbor">
-      <label for="s">S</label>
-      <input id="s" placeholder="z.B. Wald,Wald,Hügel">
-    </div>
-    <div class="neighbor">
-      <label for="sw">SW</label>
-      <input id="sw" placeholder="optional">
-    </div>
-    <div class="neighbor">
-      <label for="w">W</label>
-      <input id="w" placeholder="optional">
-    </div>
-    <div class="neighbor">
-      <label for="nw">NW</label>
-      <input id="nw" placeholder="z.B. Wald,Hügel,Hügel">
-    </div>
+  <div class="neighbor-group" id="neighborInputs">
+    <!-- Dynamisch gefüllt mit JS -->
   </div>
 
   <button onclick="generateTerrain()">Terrain generieren</button>
@@ -56,70 +26,117 @@
   <div class="output" id="terrainOutput"></div>
 
   <script>
-  const groupedA = {
-    "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
-    "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
-    "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
-    "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
-    "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
-    "bergig": ['Gebirge', 'Hochebene', 'Hügel']
-  };
+    const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
+    const allTerrains = [
+      'Meer', 'See', 'Fluss', 'Gebirge', 'Savanne', 'Dschungel', 'Wüste',
+      'Wald', 'Mangrovenwald', 'Küste', 'Hochebene', 'Steppe', 'Tundra',
+      'Taiga', 'Sumpf', 'Moorland', 'Prärie', 'Insel', 'Halbinsel',
+      'Grasland', 'Heide', 'Felsküste', 'Savannengrasland', 'Regenwald',
+      'Feuchtgebiet', 'Bambuswald', 'Hochmoor', 'Archipel', 'Hügel'
+    ];
 
-  const directions = ['n', 'no', 'o', 'so', 's', 'sw', 'w', 'nw'];
+    const groupedA = {
+      "tropisch": ['Dschungel', 'Mangrovenwald', 'Regenwald', 'Feuchtgebiet', 'Savanne', 'Savannengrasland', 'Bambuswald'],
+      "kalt": ['Tundra', 'Taiga', 'Hochmoor'],
+      "trocken": ['Wüste', 'Salzwüste', 'Steppe', 'Moorland', 'Heide'],
+      "feucht": ['Wald', 'Sumpf', 'Fluss', 'See', 'Grasland'],
+      "maritim": ['Meer', 'Küste', 'Insel', 'Archipel', 'Felsküste'],
+      "bergig": ['Gebirge', 'Hochebene', 'Hügel']
+    };
 
-  function getRandomElements(arr, count) {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-    const unique = [...new Set(shuffled)];
-    return unique.slice(0, count);
-  }
+    function createDropdown(id) {
+      const select = document.createElement('select');
+      select.id = id;
+      select.multiple = true;
+      select.size = 4;
+      select.style.minWidth = '140px';
 
-  function getTwoDistinctKeys(obj) {
-    const keys = Object.keys(obj);
-    const shuffled = keys.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 2);
-  }
+      const emptyOption = document.createElement('option');
+      emptyOption.disabled = true;
+      emptyOption.selected = true;
+      emptyOption.textContent = '-- auswählen --';
+      select.appendChild(emptyOption);
 
-  function readNeighborsFromInputs() {
-    return directions.map(dir => {
-      const val = document.getElementById(dir).value.trim();
-      return val ? val.split(',').map(t => t.trim()) : null;
-    });
-  }
+      allTerrains.forEach(terrain => {
+        const option = document.createElement('option');
+        option.value = terrain;
+        option.textContent = terrain;
+        select.appendChild(option);
+      });
 
-  function generateContextAwareTerrain(neighbors) {
-    const allNeighborTerrains = neighbors
-      .filter(n => n)
-      .flat();
-
-    if (allNeighborTerrains.length === 0) {
-      const [group1, group2] = getTwoDistinctKeys(groupedA);
-      const combined = [...groupedA[group1], ...groupedA[group2]];
-      return getRandomElements(combined, 3);
+      return select;
     }
 
-    const weightedPool = [];
-    for (let terrain of allNeighborTerrains) {
-      const weight = allNeighborTerrains.filter(t => t === terrain).length;
-      for (let i = 0; i < weight; i++) {
-        weightedPool.push(terrain);
+    function setupInputs() {
+      const container = document.getElementById('neighborInputs');
+      directions.forEach(dir => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'neighbor';
+
+        const label = document.createElement('label');
+        label.textContent = dir;
+        wrapper.appendChild(label);
+
+        const dropdown = createDropdown(dir.toLowerCase());
+        wrapper.appendChild(dropdown);
+
+        container.appendChild(wrapper);
+      });
+    }
+
+    function getSelectedTerrains() {
+      return directions.map(dir => {
+        const sel = document.getElementById(dir.toLowerCase());
+        return Array.from(sel.selectedOptions).map(opt => opt.value);
+      });
+    }
+
+    function getRandomElements(arr, count) {
+      const shuffled = [...arr].sort(() => 0.5 - Math.random());
+      const unique = [...new Set(shuffled)];
+      return unique.slice(0, count);
+    }
+
+    function getTwoDistinctKeys(obj) {
+      const keys = Object.keys(obj);
+      const shuffled = keys.sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, 2);
+    }
+
+    function generateContextAwareTerrain(neighbors) {
+      const allNeighborTerrains = neighbors.filter(n => n.length > 0).flat();
+
+      if (allNeighborTerrains.length === 0) {
+        const [group1, group2] = getTwoDistinctKeys(groupedA);
+        const combined = [...groupedA[group1], ...groupedA[group2]];
+        return getRandomElements(combined, 3);
       }
+
+      const weightedPool = [];
+      for (let terrain of allNeighborTerrains) {
+        const weight = allNeighborTerrains.filter(t => t === terrain).length;
+        for (let i = 0; i < weight; i++) {
+          weightedPool.push(terrain);
+        }
+      }
+
+      const shuffled = [...weightedPool].sort(() => 0.5 - Math.random());
+      const unique = [...new Set(shuffled)];
+      return unique.slice(0, 3);
     }
 
-    const shuffled = [...weightedPool].sort(() => 0.5 - Math.random());
-    const unique = [...new Set(shuffled)];
-    return unique.slice(0, 3);
-  }
+    function generateTerrain() {
+      const neighbors = getSelectedTerrains();
+      const aItems = generateContextAwareTerrain(neighbors);
+      const output = `🌍 Oberwelt: ${aItems.join(', ')}`;
+      document.getElementById('terrainOutput').textContent = output;
+    }
 
-  function generateTerrain() {
-    const neighbors = readNeighborsFromInputs();
-    const aItems = generateContextAwareTerrain(neighbors);
-    const output = `🌍 Allgemein (kontextsensitiv): ${aItems.join(', ')}`;
-    document.getElementById('terrainOutput').textContent = output;
-  }
+    function goBack() {
+      window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
+    }
 
-  function goBack() {
-    window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
-  }
+    setupInputs();
   </script>
 
 </body>
