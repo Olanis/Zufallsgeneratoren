@@ -30,6 +30,7 @@
   </label><br>
 
   <button onclick="generateWeather()">Wetter generieren</button>
+  <button onclick="goBack()">🔙 Zurück</button>
 
   <div class="output" id="weatherOutput"></div>
 
@@ -59,7 +60,6 @@
       const [minTemp, maxTemp] = temperatureRanges[season];
       let temp = Math.floor(Math.random() * (maxTemp - minTemp + 1)) + minTemp;
 
-      // Nachts etwas kühler
       if (timeOfDay === 'Nacht') {
         temp -= Math.floor(Math.random() * 5);
       }
@@ -68,6 +68,10 @@
 
       const output = `🌡️ Temperatur: ${temp}°C<br>🌦️ Wetter: ${effect}<br>🕒 Tageszeit: ${timeOfDay}`;
       document.getElementById('weatherOutput').innerHTML = output;
+    }
+
+    function goBack() {
+      window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
     }
   </script>
 
