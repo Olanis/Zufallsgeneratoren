@@ -202,4 +202,14 @@
           : `✨ ${r.name} (zufällig)`
       );
 
-      document.getElementById('terrainOutput').textContent = `🌍 Allgemein:\n${outputLines.join
+      document.getElementById('terrainOutput').textContent = `🌍 Allgemein:\n${outputLines.join('\n')}`;
+    }
+
+    function goBack() {
+      window.location.href = "https://olanis.github.io/Zufallsgeneratoren";
+    }
+
+    window.onload = setupInputs;
+  </script>
+</body>
+</html>
