@@ -18,6 +18,7 @@
       width: 100%;
       text-align: left;
       position: relative;
+      min-height: 2.5em;
     }
     .dropdown-button::after {
       content: '▼';
@@ -61,34 +62,10 @@
     const directions = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'];
 
     const baseTerrains = {
-      "Meer": [
-        "Tiefenmeer (dunkel und bodenlos, kaum Leben)",
-        "Sturmsee (tobende Wellen und ewiger Nebel)",
-        "Kristallsee (glasklar mit phosphoreszierenden Algen)",
-        "Frostküste (vereiste Wellen mit schneebedeckten Felsen)",
-        "Blutsee (rötliches Wasser mit unbekannter Ursache)"
-      ],
-      "Wald": [
-        "Dunkelwald (hohe Bäume mit schwärzlicher Rinde)",
-        "Leuchtwald (Bäume mit biolumineszenten Blättern)",
-        "Windwald (ständig rauschende Kronen)",
-        "Schattenhain (extrem dichter Unterwuchs)",
-        "Dornenwald (mit meterlangen Stacheln an den Ästen)"
-      ],
-      "Wüste": [
-        "Glaswüste (boden aus spiegelndem Quarzsand)",
-        "Sengöde (trocken, flimmernd, ohne jede Vegetation)",
-        "Flammensand (roter, glühender Boden)",
-        "Knochendünen (weißlicher Sand mit Fossilien)",
-        "Schleierwüste (permanenter Staub in der Luft)"
-      ],
-      "Gebirge": [
-        "Splittergrat (extrem spitze und zerklüftete Gipfel)",
-        "Donnerklippen (ständig von Gewittern umgeben)",
-        "Nebelzacken (in dichte Nebel gehüllt)",
-        "Felsenzorn (massive Steilwände und Abgründe)",
-        "Stufenberge (plateauförmig, mit terrassierten Hängen)"
-      ]
+      "Meer": ["Meer", "Tiefenmeer", "Sturmsee", "Kristallsee", "Frostküste", "Blutsee"],
+      "Wald": ["Wald", "Dunkelwald", "Leuchtwald", "Windwald", "Schattenhain", "Dornenwald"],
+      "Wüste": ["Wüste", "Glaswüste", "Sengöde", "Flammensand", "Knochendünen", "Schleierwüste"],
+      "Gebirge": ["Gebirge", "Splittergrat", "Donnerklippen", "Nebelzacken", "Felsenzorn", "Stufenberge"]
     };
 
     const groupedA = {
@@ -98,10 +75,6 @@
       "maritim": ["Meer", "Küste", "Insel", "Archipel", "Felsküste"],
       "bergig": ["Gebirge", "Hochebene", "Hügel"]
     };
-
-    const allTerrains = Object.entries(baseTerrains).flatMap(([type, variations]) =>
-      variations.map(v => ({ type, variation: v }))
-    );
 
     function getClimateZone(terrainType) {
       for (const [zone, types] of Object.entries(groupedA)) {
@@ -119,7 +92,7 @@
     }
 
     function isCompatible(terrain, neighbors) {
-      const terrainZone = getClimateZone(terrain.type);
+      const terrainZone = getClimateZone(terrain);
       return neighbors.every(n => {
         const neighborZone = getClimateZone(n);
         return terrainZone === neighborZone || !neighborZone;
@@ -128,33 +101,37 @@
 
     function generateTerrain() {
       const selectedTerrains = getSelectedTerrains();
-      const neighbors = selectedTerrains.map(v => baseTerrains[v]?.[0]?.split(" (")[0] || v);
+      const neighbors = selectedTerrains.map(v => v);
 
       let weightedPool = [];
       for (const [type, variations] of Object.entries(baseTerrains)) {
-        const rarity = 6 - Math.min(5, variations.length); // Häufigkeit invers zur Anzahl
-        variations.forEach(v => weightedPool.push(...Array(rarity).fill({ type, variation: v })));
+        variations.forEach((v, i) => {
+          const rarity = v === type ? 5 : 1;
+          for (let r = 0; r < rarity; r++) {
+            weightedPool.push(v);
+          }
+        });
       }
 
-      let attempts = 0;
-      let chosen;
-      while (attempts++ < 100) {
-        const rand = Math.floor(Math.random() * weightedPool.length);
-        const candidate = weightedPool[rand];
+      const results = [];
+      let tries = 0;
+      while (results.length < 3 && tries < 1000) {
+        const candidate = weightedPool[Math.floor(Math.random() * weightedPool.length)];
         if (isCompatible(candidate, neighbors)) {
-          chosen = candidate;
-          break;
+          results.push(candidate);
         }
+        tries++;
       }
 
       const output = document.getElementById('terrainOutput');
-      output.textContent = chosen
-        ? `Ausgewähltes Terrain:\n${chosen.variation}`
+      output.textContent = results.length
+        ? results.map(t => selectedTerrains.includes(t) ? `Aus Nachbarn: ${t}` : `Zufällig: ${t}`).join("\n")
         : '⚠️ Kein passendes Terrain gefunden (klimatische Inkompatibilität?)';
     }
 
     function resetSelections() {
       document.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('.dropdown-button').forEach(btn => btn.textContent = btn.textContent.split(' ')[0] + ' 0/3');
     }
 
     function goBack() {
@@ -172,33 +149,37 @@
       const menu = document.createElement("div");
       menu.className = "dropdown-menu";
 
-      baseTerrains[name]?.forEach((label, i) => {
-        const item = document.createElement("label");
-        item.className = "terrain-item";
+      for (const [type, variations] of Object.entries(baseTerrains)) {
+        variations.forEach(label => {
+          const item = document.createElement("label");
+          item.className = "terrain-item";
 
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.value = name;
-        cb.addEventListener("change", () => {
-          const count = menu.querySelectorAll("input[type=checkbox]:checked").length;
-          button.textContent = `${name} ${count}/3`;
+          const cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.value = label;
+          cb.addEventListener("change", () => {
+            const count = menu.querySelectorAll("input[type=checkbox]:checked").length;
+            button.textContent = `${name} ${count}/3`;
+          });
+
+          item.appendChild(cb);
+          item.appendChild(document.createTextNode(label));
+          menu.appendChild(item);
         });
-
-        item.appendChild(cb);
-        item.appendChild(document.createTextNode(label));
-        menu.appendChild(item);
-      });
+      }
 
       wrapper.appendChild(button);
       wrapper.appendChild(menu);
 
       button.addEventListener("click", (e) => {
         e.stopPropagation();
+        document.querySelectorAll(".dropdown").forEach(d => { if (d !== wrapper) d.classList.remove("open"); });
         wrapper.classList.toggle("open");
       });
 
+      menu.addEventListener("click", (e) => e.stopPropagation());
       document.addEventListener("click", () => {
-        wrapper.classList.remove("open");
+        document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open"));
       });
 
       return wrapper;
