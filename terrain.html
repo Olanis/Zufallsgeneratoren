@@ -67,8 +67,7 @@
     const incompatibleNeighbors = {
       "Meer": ["Gebirge", "Hochmoor", "Hochebene", "Steppe"],
       "Wüste": ["Meer", "Sumpf", "Mangrovenwald"],
-      "Sumpf": ["Wüste", "Gebirge"]
-      // Hinweis: Gebirge wurde entfernt
+      "Sumpf": ["Wüste"]
     };
 
     const baseTerrains = {
@@ -99,8 +98,6 @@
       "Hochmoor": ["Hochmoor", "Torfiges Hochmoor", "Nasses Hochmoor", "Offenes Hochmoor", "Bewachsenes Hochmoor"],
       "Archipel": ["Archipel", "Inselgruppe", "Küstenarchipel", "Felsarchipel", "Tropenarchipel"]
     };
-
-    // ... (rest bleibt gleich)
 
     function createDropdown(name) {
       const wrapper = document.createElement("div");
@@ -148,8 +145,6 @@
 
       return wrapper;
     }
-
-    // ...
   </script>
 </body>
 </html>
